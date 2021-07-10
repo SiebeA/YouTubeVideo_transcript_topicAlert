@@ -22,16 +22,19 @@ api_key = 'AIzaSyA3ALHnyYZ4Ns1dGhwhMkfX4yPhqD-3lLE'
 #========================= #
 
 
-max_videos = 100
+max_videos = 1000
 # api_key = input('enter time in format hh:mm')
-channel_Id = "UCfpnY5NnBl-8L7SvICuYkYQ" #Scott adams
+# channel_Id = "UCfpnY5NnBl-8L7SvICuYkYQ" #Scott adams
 # channel_Id = "UCNAxrHudMfdzNi6NxruKPLw" #sam harris
 # channel_Id = "UCGaVdbSav8xWuFWTadK6loA" #vlogbrothers
+channel_Id = "UCh_dVD10YuSghle8g6yjePg" #naval
+
 
 
 '          1  Json parsing                '
 #TODO scrape less than 10 tokens when maximum is less than that
 def json_storer(): # stores the video meta-data; including Ids required for downloading next
+    counter =0
     from urllib.request import urlopen
     import json
     b_json_files = []
@@ -43,15 +46,17 @@ def json_storer(): # stores the video meta-data; including Ids required for down
     if max_videos>50: #we require a nextpagetoken to extract additional metadata
         i = 0
         nextPageToken = ""
-        while 'nextPageToken' in b_json_files[i].keys():
-            print(i)
+        # : #dep:
+        from math import ceil
+        while counter != (ceil(max_videos/100*2)-1) and 'nextPageToken' in b_json_files[i].keys():#dont waste quota asking for more tokens than our maxvideo count requires; (for 120 videos: 50 first token, cum100 for 1 add, cum 150 1)
             nextPageToken = b_json_files[i]['nextPageToken']
             youtubeChannelMetaDataUrl = f"https://www.googleapis.com/youtube/v3/search?key={api_key}&channelId={channel_Id}&part=snippet,id&order=date&maxResults=50&pageToken={nextPageToken}"
             response = urlopen(youtubeChannelMetaDataUrl)
             data_json = json.loads(response.read()) 
             b_json_files.append(data_json)
             i +=1
-            # counter +=1
+            print(counter)
+            counter +=1
             # if counter ==3:
             #     break
         print(youtubeChannelMetaDataUrl)
@@ -101,7 +106,7 @@ def transcriptDownloader(listofVideoIds):
     start_time = time.time() 
     from youtube_transcript_api import YouTubeTranscriptApi
     transcripts = YouTubeTranscriptApi.get_transcripts(video_ids=ids_vids[:150],continue_after_error=True)
-    print('time it took:', time.time() - start_time)
+    print('time it took in secs to download the transcripts :', round(time.time() - start_time))
     return transcripts
 
 transcripts = transcriptDownloader(ids_vids)# i0=succesfull i2=unsuccesful in transcript extraction
@@ -114,6 +119,13 @@ transcripts = transcriptDownloader(ids_vids)# i0=succesfull i2=unsuccesful in tr
 
 dic = {i: (f,d) for i,f,d in zip(ids_vids,date_vids,title_vids)} #more consise alternative #TODO make a pop loop in case more than 1 transcripts are missing
 dic.pop(transcripts[1][0])
+
+for i in transcripts[1]:
+    try:
+        dic.pop(i)
+    except:
+        continue
+
 
 ids_vids = [i[0] for i in dic.items()]
 date_vids = [i[1][0] for i in dic.items()]
@@ -139,21 +151,20 @@ def textTranscriptExtractor():
             a_strings_transcripts += i['text']+" " #the text is written under the date,id,title
         a_strings_transcripts +="\n\n" 
         counter +=1
-    print('time it took:', time.time() - start_time)
+    print('time it took to extract the text in secs:', round(time.time() - start_time))
     return a_strings_transcripts
 
 a_strings_transcripts = textTranscriptExtractor()
-print(len(a_strings_transcripts))
+
 
 
 #export if u want
-with open("output_file2.txt", "w",encoding="utf-8") as text_file:
+channelTitle = metaDataYoutubeVideo[0][1]['channelTitle']
+with open(f"outputFile_{channelTitle}.txt", "w",encoding="utf-8") as text_file:
     text_file.write(a_strings_transcripts)
     
 
-# import pickle
-# with open('metaDataYoutubeVideo.pickle', 'wb') as handle:
-#     pickle.dump(metaDataYoutubeVideo, handle, protocol=pickle.HIGHEST_PROTOCOL)
-
-
-
+#export the transcript STR as a variable, if you want:
+import pickle
+with open(f'transcript_string_{channelTitle}.pickle', 'wb') as handle:
+    pickle.dump(metaDataYoutubeVideo, handle, protocol=pickle.HIGHEST_PROTOCOL)
