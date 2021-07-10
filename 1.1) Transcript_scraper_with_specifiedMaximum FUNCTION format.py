@@ -23,15 +23,16 @@ api_key = 'AIzaSyA3ALHnyYZ4Ns1dGhwhMkfX4yPhqD-3lLE'
 '            X                '
 #========================= #
 
-
-max_videos = 220
+max_videos = 120
 # api_key = input('enter time in format hh:mm')
 channel_Id = "UCfpnY5NnBl-8L7SvICuYkYQ" #Scott adams
 # channel_Id = "UCNAxrHudMfdzNi6NxruKPLw" #sam harris
 # channel_Id = "UCGaVdbSav8xWuFWTadK6loA" #vlogbrothers
 
 
-'          1  Json parsing                '
+# =============================================================================
+# '          1  Json parsing                '
+# =============================================================================
 #TODO scrape less than 10 tokens when maximum is less than that
 
 
@@ -49,14 +50,16 @@ def json_storer(): # stores the video meta-data; including Ids required for down
     if max_videos>50: #we require a nextpagetoken to extract additional metadata
         i = 0
         nextPageToken = ""
-        # while 'nextPageToken' in b_json_files[i].keys():
-        while counter != (ceil(max_videos/100*2)):
+        # while 'nextPageToken' in b_json_files[i].keys(): #dep:
+        from math import ceil
+        while counter != (ceil(max_videos/100*2)-1):#dont waste quota asking for more tokens than our maxvideo count requires; (for 120 videos: 50 first token, cum100 for 1 add, cum 150 1)
             nextPageToken = b_json_files[i]['nextPageToken']
             youtubeChannelMetaDataUrl = f"https://www.googleapis.com/youtube/v3/search?key={api_key}&channelId={channel_Id}&part=snippet,id&order=date&maxResults=50&pageToken={nextPageToken}"
             response = urlopen(youtubeChannelMetaDataUrl)
             data_json = json.loads(response.read()) 
             b_json_files.append(data_json)
             i +=1
+            print(counter)
             counter +=1
             # if counter ==3:
             #     break
@@ -90,8 +93,9 @@ def youtubeMetaDataExtractor():
 metaDataYoutubeVideo,fail = youtubeMetaDataExtractor()
 
 
-# filteredMetaData = [ [i[0] for i in metaDataYoutubeVideo][:max_videos],[i[1]['title'] for i in metaDataYoutubeVideo][:max_videos],[i[2] for i in metaDataYoutubeVideo][:max_videos] ]
+filteredMetaData = [ [i[0] for i in metaDataYoutubeVideo][:max_videos],[i[1]['title'] for i in metaDataYoutubeVideo][:max_videos],[i[2] for i in metaDataYoutubeVideo][:max_videos] ]
 
+# dep:
 date_vids = [i[0] for i in metaDataYoutubeVideo][:max_videos]
 title_vids = [i[1]['title'] for i in metaDataYoutubeVideo][:max_videos]
 ids_vids = [i[2] for i in metaDataYoutubeVideo][:max_videos]
@@ -111,7 +115,7 @@ def transcriptDownloader(listofVideoIds):
     start_time = time.time() 
     from youtube_transcript_api import YouTubeTranscriptApi
     transcripts = YouTubeTranscriptApi.get_transcripts(video_ids=ids_vids[:150],continue_after_error=True)
-    print('time it took:', time.time() - start_time)
+    print('time it took to download transcripts:', round(time.time() - start_time))
     return transcripts
 
 transcripts = transcriptDownloader(ids_vids)
