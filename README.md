@@ -1,6 +1,11 @@
 # YouTubeVideo_transcript_topicAlert
 
 Application goal:
-    I follow Scott adams on Youtube. Scott covers a wide range of topics, some which I want to evade, some which I do not want to miss. I want to match the exact videos in which He talks about this or that, or X times about this or that. 
-    Even deeper: 2 words close together appearance in a video; i.e. whenever "Naval" & "bitcoin" occur in between 100 characters, I get a list of episodes in which that condition is satisfied
-    feature: for every new video in which condition (x1,x2,xN) is satisfied, get a notification. 
+
+  Objective: When you follow a channel on Youtube. Say they cover a wide range of topics, some which I want to evade, some which Iyou do not want to miss. What if you want to match the exact videos in which is talked about {keyword(s)}. 
+    
+    Method:
+    1. The transcripts are downloaded with the YoutubeDataAPI
+    2. The transcripts are neatly organized in a String
+    3. user-inputted keyword returns the videos in which the keyword occurred. 
+   
