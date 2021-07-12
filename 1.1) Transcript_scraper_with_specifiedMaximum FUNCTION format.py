@@ -14,7 +14,7 @@ Common bugs:
 #%%=======================#
 '            User input:                '
 #========================= #
-api_key = 'AIzaSyA3ALHnyYZ4Ns1dGhwhMkfX4yPhqD-3lLE'
+api_key = ''
 # 
 
 #%%=======================#
