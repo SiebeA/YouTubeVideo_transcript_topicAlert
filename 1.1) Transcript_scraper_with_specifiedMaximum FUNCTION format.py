@@ -136,9 +136,7 @@ title_vids = [i[1][1] for i in dic.items()]
 #%%=======================#
 '      organizing the downloaded transcripts; filter out text (not timestamps)'
 #========================= #
-#Scneario: 1st transcript is missing ; 
-# correct:  date-id-title combination
-#  incorrect: transcript 
+
 def textTranscriptExtractor():
     import time
     start_time = time.time()
