@@ -1,6 +1,6 @@
 
 """
-Check: whether api_key is (still) valid
+Check: whether your api_key is (still) valid
 
 Goal: 
     find out the metadata for when Scott talks about HOFFMAN REALITY
@@ -14,25 +14,23 @@ Common bugs:
 #%%=======================#
 '            User input:                '
 #========================= #
-api_key = ''
+api_key = 'AIzaSyDZlegWZl3Mbi7xGPgOnB3qbQXD5EkbSCg' # input (your) API-key ()
 # 
 
+max_videos = 1000 #specify how many videos have to be incluced
+
+        # you can add some channels, for easy switching the input to the program:
+# channel_Id = "UCfpnY5NnBl-8L7SvICuYkYQ" #Scott adams
+channel_Id = "UCNAxrHudMfdzNi6NxruKPLw" #sam harris
+# channel_Id = "UCGaVdbSav8xWuFWTadK6loA" #vlogbrothers
+# channel_Id = "UCh_dVD10YuSghle8g6yjePg" #naval
+
+
+
 #%%=======================#
-'            X                '
+'   Retrieving the Youtube videos metadate through json parsing                '
 #========================= #
 
-
-max_videos = 1000
-# api_key = input('enter time in format hh:mm')
-# channel_Id = "UCfpnY5NnBl-8L7SvICuYkYQ" #Scott adams
-# channel_Id = "UCNAxrHudMfdzNi6NxruKPLw" #sam harris
-# channel_Id = "UCGaVdbSav8xWuFWTadK6loA" #vlogbrothers
-channel_Id = "UCh_dVD10YuSghle8g6yjePg" #naval
-
-
-
-'          1  Json parsing                '
-#TODO scrape less than 10 tokens when maximum is less than that
 def json_storer(): # stores the video meta-data; including Ids required for downloading next
     counter =0
     from urllib.request import urlopen
@@ -57,15 +55,13 @@ def json_storer(): # stores the video meta-data; including Ids required for down
             i +=1
             print(counter)
             counter +=1
-            # if counter ==3:
-            #     break
         print(youtubeChannelMetaDataUrl)
         return b_json_files
 
 b_json_files = json_storer()#don't call the dic in the list, as we can append multiple dics for every 50 additional videos you'd want to extract.
 
 #%%=======================#
-'            X  2  storing the metadata that we require               '
+'            X  2  filtering and storing the metadata that we want               '
 #========================= #
 '                        '
 
@@ -88,9 +84,7 @@ def youtubeMetaDataExtractor():
 
 metaDataYoutubeVideo,fail = youtubeMetaDataExtractor()
 
-
-# filteredMetaData = [ [i[0] for i in metaDataYoutubeVideo][:max_videos],[i[1]['title'] for i in metaDataYoutubeVideo][:max_videos],[i[2] for i in metaDataYoutubeVideo][:max_videos] ]
-
+# Some of the metadata of the videos, before correction of the ones for which no transcript is available:
 date_vids = [i[0] for i in metaDataYoutubeVideo][:max_videos]
 title_vids = [i[1]['title'] for i in metaDataYoutubeVideo][:max_videos]
 ids_vids = [i[2] for i in metaDataYoutubeVideo][:max_videos]
@@ -103,14 +97,16 @@ ids_vids = [i[2] for i in metaDataYoutubeVideo][:max_videos]
 
 def transcriptDownloader(listofVideoIds):
     import time
-    start_time = time.time() 
+    start_time = time.time()
+    
     from youtube_transcript_api import YouTubeTranscriptApi
-    transcripts = YouTubeTranscriptApi.get_transcripts(video_ids=ids_vids[:150],continue_after_error=True)
+    transcripts = YouTubeTranscriptApi.get_transcripts(video_ids=ids_vids[:max_videos],continue_after_error=True)
+    
     print('time it took in secs to download the transcripts :', round(time.time() - start_time))
+    
     return transcripts
 
 transcripts = transcriptDownloader(ids_vids)# i0=succesfull i2=unsuccesful in transcript extraction
-
 
 #%%=======================#
 '            correction for missing transcripts                '
@@ -126,7 +122,7 @@ for i in transcripts[1]:
     except:
         continue
 
-
+#after correction, some of the videos metadata:
 ids_vids = [i[0] for i in dic.items()]
 date_vids = [i[1][0] for i in dic.items()]
 title_vids = [i[1][1] for i in dic.items()]
@@ -154,15 +150,17 @@ def textTranscriptExtractor():
 
 a_strings_transcripts = textTranscriptExtractor()
 
-
-
-#export if u want
+# =============================================================================
+# #export if necessary:
+# =============================================================================
 channelTitle = metaDataYoutubeVideo[0][1]['channelTitle']
-with open(f"outputFile_{channelTitle}.txt", "w",encoding="utf-8") as text_file:
+with open(f"outputFile_{channelTitle}_{date_vids[0]}_{date_vids[-1]}.txt", "w",encoding="utf-8") as text_file:
     text_file.write(a_strings_transcripts)
     
 
 #export the transcript STR as a variable, if you want:
 import pickle
-with open(f'transcript_string_{channelTitle}.pickle', 'wb') as handle:
+with open(f'transcript_string_{channelTitle}_{date_vids[0]}_{date_vids[-1]}.pickle', 'wb') as handle:
     pickle.dump(metaDataYoutubeVideo, handle, protocol=pickle.HIGHEST_PROTOCOL)
+
+
