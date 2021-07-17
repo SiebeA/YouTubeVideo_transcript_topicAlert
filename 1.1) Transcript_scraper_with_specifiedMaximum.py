@@ -14,7 +14,7 @@ Common bugs:
 #%%=======================#
 '            User input:                '
 #========================= #
-api_key = 'AIzaSyDZlegWZl3Mbi7xGPgOnB3qbQXD5EkbSCg' # input (your) API-key ()
+api_key = '' # input (your) API-key ()
 # 
 
 max_videos = 1000 #specify how many videos have to be incluced
