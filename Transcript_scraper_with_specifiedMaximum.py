@@ -17,11 +17,11 @@ Common bugs:
 api_key = '' # input (your) API-key ()
 # 
 
-max_videos = 1000 #specify how many videos have to be incluced
+max_videos = 5 #specify how many videos have to be incluced
 
         # you can add some channels, for easy switching the input to the program:
-# channel_Id = "UCfpnY5NnBl-8L7SvICuYkYQ" #Scott adams
-channel_Id = "UCNAxrHudMfdzNi6NxruKPLw" #sam harris
+channel_Id = "UCfpnY5NnBl-8L7SvICuYkYQ" #Scott adams
+# channel_Id = "UCNAxrHudMfdzNi6NxruKPLw" #sam harris
 # channel_Id = "UCGaVdbSav8xWuFWTadK6loA" #vlogbrothers
 # channel_Id = "UCh_dVD10YuSghle8g6yjePg" #naval
 
@@ -154,7 +154,7 @@ a_strings_transcripts = textTranscriptExtractor()
 # #export if necessary:
 # =============================================================================
 channelTitle = metaDataYoutubeVideo[0][1]['channelTitle']
-with open(f"outputFile_{channelTitle}_{date_vids[0]}_{date_vids[-1]}.txt", "w",encoding="utf-8") as text_file:
+with open(f"transcripts_{channelTitle}_{date_vids[0]}_{date_vids[-1]}.txt", "w",encoding="utf-8") as text_file:
     text_file.write(a_strings_transcripts)
     
 
