@@ -1,11 +1,8 @@
 
 """
 Check: whether your api_key is (still) valid
-
-Goal: 
-    find out the metadata for when Scott talks about HOFFMAN REALITY
     
-Common bugs:
+Bugs resolved:
     - when transcript is unavaible for a given ID, the next transcript is being written under the ID that was unavailable
 """
 
@@ -14,10 +11,10 @@ Common bugs:
 #%%=======================#
 '            User input:                '
 #========================= #
-api_key = '' # input (your) API-key ()
+api_key = 'AIzaSyDZlegWZl3Mbi7xGPgOnB3qbQXD5EkbSCg' # input (your) API-key ()
 # 
 
-max_videos = 5 #specify how many videos have to be incluced
+max_videos = 100 #specify how many videos have to be incluced
 
         # you can add some channels, for easy switching the input to the program:
 channel_Id = "UCfpnY5NnBl-8L7SvICuYkYQ" #Scott adams
@@ -56,14 +53,13 @@ def json_storer(): # stores the video meta-data; including Ids required for down
             print(counter)
             counter +=1
         print(youtubeChannelMetaDataUrl)
-        return b_json_files
+    return b_json_files
 
 b_json_files = json_storer()#don't call the dic in the list, as we can append multiple dics for every 50 additional videos you'd want to extract.
 
 #%%=======================#
 '            X  2  filtering and storing the metadata that we want               '
 #========================= #
-'                        '
 
 def youtubeMetaDataExtractor():
     success = 0
@@ -114,7 +110,10 @@ transcripts = transcriptDownloader(ids_vids)# i0=succesfull i2=unsuccesful in tr
 # sometimes a transcript is missing, then we need to make new lists of the other transcript meta data, otherwise wrong transcripts are attributed to the wrong metaData
 
 dic = {i: (f,d) for i,f,d in zip(ids_vids,date_vids,title_vids)} #more consise alternative #TODO make a pop loop in case more than 1 transcripts are missing
-dic.pop(transcripts[1][0])
+
+
+# dic.pop(transcripts[1][0])
+
 
 for i in transcripts[1]:
     try:
@@ -153,14 +152,14 @@ a_strings_transcripts = textTranscriptExtractor()
 # =============================================================================
 # #export if necessary:
 # =============================================================================
-channelTitle = metaDataYoutubeVideo[0][1]['channelTitle']
-with open(f"transcripts_{channelTitle}_{date_vids[0]}_{date_vids[-1]}.txt", "w",encoding="utf-8") as text_file:
+channelTitle = metaDataYoutubeVideo[0][1]['channelTitle'] # just for passing ti to the output file name
+with open(f"output\\transcripts_{channelTitle}_between_{date_vids[0]}_and_{date_vids[-1]}.txt", "w",encoding="utf-8") as text_file:
     text_file.write(a_strings_transcripts)
-    
+
 
 #export the transcript STR as a variable, if you want:
-import pickle
-with open(f'transcript_string_{channelTitle}_{date_vids[0]}_{date_vids[-1]}.pickle', 'wb') as handle:
-    pickle.dump(metaDataYoutubeVideo, handle, protocol=pickle.HIGHEST_PROTOCOL)
+# import pickle
+# with open(f'output\\transcript_string_{channelTitle}_from_{date_vids[-1]}_until_{date_vids[0]}.pickle', 'wb') as handle:
+#     pickle.dump(metaDataYoutubeVideo, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 
