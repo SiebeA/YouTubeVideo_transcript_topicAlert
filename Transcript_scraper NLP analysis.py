@@ -38,13 +38,12 @@ for i in a_matches: print(i,'\n')
 # #match the context of the pattern
 # =============================================================================
 
-wordOfInterestψContext = r"(.{{200}})({})(\s.{{200}})".format(wordOfInterest)
+wordOfInterestψContext = r"(.{{200}})({})(\s.{{200}})".format(wordOfInterest)# matches X chars before and after the word of interest
 
-a_matches = re.findall(wordOfInterestψContext, a_strings_transcripts)
-for match in a_matches: print(match,'\n')
+aa_matches = re.findall(wordOfInterestψContext, a_strings_transcripts)
+for match in aa_matches: print(match,'\n\n')
 # matching a group of the pattern; ie context before, the word, or context after ; each is parenthesized in the {wordOfInterestψContext} variable. 
-for match in re.finditer(wordOfInterestψContext, a_strings_transcripts):
-    print(match.group(1))
+
 
 # =============================================================================
 #  NER counter
@@ -59,17 +58,15 @@ dict={}
 for a,b in a_matchess:
     dict.setdefault(a, []).append(b)
 del a,b
-# how is it sorted? ; date chronological, despite when you look in the variable explorer (when it's sorted alphabetically)
+# explanation: how is it sorted? ; date chronological, despite when you look in the variable explorer (when it's sorted alphabetically)
 
     # nlping the latest transcript (ie index 0)
 
 nlp = spacy.load("en_core_web_sm")
-#a = dict[list(dict.keys())[0]][0] #insight: the text from the frist dict key 
 doc = nlp(dict[list(dict.keys())[0]][0])
 
     #NER summarizing
-
-labels = [ent.label_ for ent in doc.ents]
+labels, Counter = [ent.label_ for ent in doc.ents], 
 Counter(labels)
 items = [ent.text for ent in doc.ents if not (ent.label_ =='CARDINAL')]
 a_nerCounter = pd.DataFrame(Counter(items).most_common(10), columns =['ner', 'occurence']) #1st argument = list of tuples with a coupleTuple
