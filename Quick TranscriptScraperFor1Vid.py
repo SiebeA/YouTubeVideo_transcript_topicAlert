@@ -13,20 +13,13 @@ def quickTranscriptScraper(video_id):
             string += (i['text']+'\n ')
             f.write(i['text']+'\n ')
     
+# altenratively: replace the new lines in the file (however it makes the colour scheme dissapear)
+    # import re
+    # string = re.sub("($\n)", " ", string, flags=re.MULTILINE)
+    # with open("output_file_transcript2.txt", "w") as f:
+    #     f.write(string)
+    # print(string)
+    # return string
 
-    import re
-    string = re.sub("($\n)", " ", string, flags=re.mu)
-    with open("output_file_transcript2.txt", "w") as f:
-        f.write(string)
-    print(string)
-    return string
+test = quickTranscriptScraper("HbdcD5SAD7Q")        
 
-test = quickTranscriptScraper("HbdcD5SAD7Q")
-
-    #TODO re.replace $\
-        
-
-text = "siebe is geen persoon"
-
-import re
-re.sub('siebe', 'jelle', text)
