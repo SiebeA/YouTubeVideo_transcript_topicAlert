@@ -29,13 +29,13 @@ del file
 #%%=======================#
 '            REGEX return episode where a key word was mentioned:                 '
 #========================= #
-wordOfInterest = 'rogan'
+wordOfInterest = '1984'
 regex = r"(\d{{4}}-\d+-\d+\n.+\n.+)\n\n.+(?={})".format(wordOfInterest) #this regex returns the first match (in first parantheses: title, date, id)c of the 2nd match (2nd parenthesis) 
 a_matches = re.findall(regex, a_strings_transcripts) #it returns the date and title 
 for i in a_matches: print(i,'\n')
 
 # =============================================================================
-# #match the context of the pattern
+# #match the context of the patternz
 # =============================================================================
 
 wordOfInterestψContext = r"(.{{200}})({})(\s.{{200}})".format(wordOfInterest)# matches X chars before and after the word of interest
