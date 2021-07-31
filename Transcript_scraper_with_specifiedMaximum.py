@@ -7,6 +7,53 @@ Bugs resolved:
 """
 
 
+#%%=======================#
+'      determining how many recent transcripts (by importing last output date                '
+#========================= #
+
+
+import os, glob, pickle
+print(os.getcwd())
+os.chdir("C:\\Users\\siebe\\GD\\Engineering\\.Python\\output")
+os.startfile(os.getcwd()) #open the windows file folder
+for f in glob.glob('*'): print(f)
+
+
+#recover last transcript bundle file:
+transcriptTextFileTitle = glob.glob('*txt')
+with open(transcriptTextFileTitle[0],encoding='utf8') as file:
+    a_strings_transcripts = file.read()
+    content = file.readlines()
+del transcriptTextFileTitle
+
+
+
+
+#determining laste date
+with open("dateVids.pickle", "rb") as f:
+    lastDateVids = pickle.load(f)
+from datetime import datetime
+today = datetime.today()
+datetime.today().strftime('%Y-%m-%d')
+datetime_lastVid = datetime.strptime(lastDateVids[0], '%Y-%m-%d')
+datetime_lastVid = datetime.strptime(a_strings_transcripts[4:12], '%y-%m-%d')
+delta = today - datetime_lastVid
+print( 'this many days since the latest transcript in our latest output file: ', delta.days)
+
+
+
+
+
+"""
+get date
+use date to determine how many videos thus tokens
+download that number of videos
+
+| 
+save the date files list
+
+"""
+
 
 #%%=======================#
 '            User input:                '
@@ -14,7 +61,7 @@ Bugs resolved:
 api_key = 'AIzaSyDZlegWZl3Mbi7xGPgOnB3qbQXD5EkbSCg' # input (your) API-key ()
 # 
 
-max_videos = 100 #specify how many videos have to be incluced
+max_videos = delta.days #specify how many videos have to be incluced
 
         # you can add some channels, for easy switching the input to the program:
 channel_Id = "UCfpnY5NnBl-8L7SvICuYkYQ" #Scott adams
@@ -135,7 +182,7 @@ title_vids = [i[1][1] for i in dic.items()]
 def textTranscriptExtractor():
     import time
     start_time = time.time()
-    a_strings_transcripts = ""
+    a_strings_transcripts = ""      #output file
     counter = 0
     # for i in range(10): #(len(transcripts[0])):
     for key,date,title,idd in zip( transcripts[0],date_vids,title_vids,ids_vids):
@@ -153,13 +200,13 @@ a_strings_transcripts = textTranscriptExtractor()
 # #export if necessary:
 # =============================================================================
 channelTitle = metaDataYoutubeVideo[0][1]['channelTitle'] # just for passing ti to the output file name
-with open(f"output\\transcripts_{channelTitle}_between_{date_vids[0]}_and_{date_vids[-1]}.txt", "w",encoding="utf-8") as text_file:
+with open(f'C:\\Users\\siebe\\GD\\Engineering\\.Python\\output\\transcripts_{channelTitle}_between_{date_vids[0]}_and_{date_vids[-1]}.txt', "w",encoding="utf-8") as text_file:
     text_file.write(a_strings_transcripts)
 
 
-#export the transcript STR as a variable, if you want:
-# import pickle
-# with open(f'output\\transcript_string_{channelTitle}_from_{date_vids[-1]}_until_{date_vids[0]}.pickle', 'wb') as handle:
-#     pickle.dump(metaDataYoutubeVideo, handle, protocol=pickle.HIGHEST_PROTOCOL)
+#export the date last, the most recent date will be used to determine how many transcripts need to be scraped for the next time (see first section where the pickle is loaded)
+import pickle
+with open('C:\\Users\\siebe\\GD\\Engineering\\.Python\\output\\dateVids.pickle', 'wb') as handle:
+    pickle.dump(date_vids, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 
