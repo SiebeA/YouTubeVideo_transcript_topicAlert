@@ -8,51 +8,27 @@ Bugs resolved:
 
 
 #%%=======================#
-'      determining how many recent transcripts (by importing last output date                '
+'  Import latest outputTranscript file+ determining its latest transcript date (such that we download only new transcripts         '
 #========================= #
 
-
+from datetime import datetime
 import os, glob, pickle
-print(os.getcwd())
 os.chdir("C:\\Users\\siebe\\GD\\Engineering\\.Python\\output")
-os.startfile(os.getcwd()) #open the windows file folder
 for f in glob.glob('*'): print(f)
 
 
-#recover last transcript bundle file:
-transcriptTextFileTitle = glob.glob('*txt')
+#recover last transcript output file:
+transcriptTextFileTitle = glob.glob('*txt') # input for open 
 with open(transcriptTextFileTitle[0],encoding='utf8') as file:
     a_strings_transcripts = file.read()
-    content = file.readlines()
 del transcriptTextFileTitle
 
 
-
-
-#determining laste date
-with open("dateVids.pickle", "rb") as f:
-    lastDateVids = pickle.load(f)
-from datetime import datetime
-today = datetime.today()
-datetime.today().strftime('%Y-%m-%d')
-datetime_lastVid = datetime.strptime(lastDateVids[0], '%Y-%m-%d')
+#determining the most recent date of the transcriptfile
 datetime_lastVid = datetime.strptime(a_strings_transcripts[4:12], '%y-%m-%d')
-delta = today - datetime_lastVid
+delta = datetime.today() - datetime_lastVid
 print( 'this many days since the latest transcript in our latest output file: ', delta.days)
 
-
-
-
-
-"""
-get date
-use date to determine how many videos thus tokens
-download that number of videos
-
-| 
-save the date files list
-
-"""
 
 
 #%%=======================#
@@ -182,7 +158,7 @@ title_vids = [i[1][1] for i in dic.items()]
 def textTranscriptExtractor():
     import time
     start_time = time.time()
-    a_strings_transcripts = ""      #output file
+    a_strings_transcripts = ""      
     counter = 0
     # for i in range(10): #(len(transcripts[0])):
     for key,date,title,idd in zip( transcripts[0],date_vids,title_vids,ids_vids):
@@ -194,14 +170,22 @@ def textTranscriptExtractor():
     print('time it took to extract the text in secs:', round(time.time() - start_time))
     return a_strings_transcripts
 
-a_strings_transcripts = textTranscriptExtractor()
+a_strings_transcriptsNew = textTranscriptExtractor()
+
+aaa = a_strings_transcriptsNew + a_strings_transcripts
+
+import re
+datesinTextFile = re.findall("\d{4}-\d{2}-\d{2}", aaa)
+
+
+
 
 # =============================================================================
 # #export if necessary:
 # =============================================================================
 channelTitle = metaDataYoutubeVideo[0][1]['channelTitle'] # just for passing ti to the output file name
 with open(f'C:\\Users\\siebe\\GD\\Engineering\\.Python\\output\\transcripts_{channelTitle}_between_{date_vids[0]}_and_{date_vids[-1]}.txt', "w",encoding="utf-8") as text_file:
-    text_file.write(a_strings_transcripts)
+    text_file.write(aaa)
 
 
 #export the date last, the most recent date will be used to determine how many transcripts need to be scraped for the next time (see first section where the pickle is loaded)
