@@ -154,7 +154,7 @@ title_vids = [i[1][1] for i in dic.items()]
 #%%=======================#
 '      organizing the downloaded transcripts; filter out text (not timestamps)'
 #========================= #
-
+#
 def textTranscriptExtractor():
     import time
     start_time = time.time()
@@ -174,22 +174,22 @@ a_strings_transcriptsNew = textTranscriptExtractor()
 
 aaa = a_strings_transcriptsNew + a_strings_transcripts
 
-import re
-datesinTextFile = re.findall("\d{4}-\d{2}-\d{2}", aaa)
-
-
 
 
 # =============================================================================
 # #export if necessary:
 # =============================================================================
+import re
+datesinTextFile = re.findall("\d{4}-\d{2}-\d{2}", aaa)
+datesinTextFile[-1]
+datesinTextFile[0]
+
 channelTitle = metaDataYoutubeVideo[0][1]['channelTitle'] # just for passing ti to the output file name
-with open(f'C:\\Users\\siebe\\GD\\Engineering\\.Python\\output\\transcripts_{channelTitle}_between_{date_vids[0]}_and_{date_vids[-1]}.txt', "w",encoding="utf-8") as text_file:
+with open(f'C:\\Users\\siebe\\GD\\Engineering\\.Python\\output\\transcripts_{channelTitle}_between_{datesinTextFile[0]}_and_{datesinTextFile[-1]}.txt', "w",encoding="utf-8") as text_file:
     text_file.write(aaa)
 
 
 #export the date last, the most recent date will be used to determine how many transcripts need to be scraped for the next time (see first section where the pickle is loaded)
-import pickle
 with open('C:\\Users\\siebe\\GD\\Engineering\\.Python\\output\\dateVids.pickle', 'wb') as handle:
     pickle.dump(date_vids, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
