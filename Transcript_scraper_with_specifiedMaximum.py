@@ -8,48 +8,54 @@ Bugs resolved:
 
 
 #%%=======================#
-'  Import latest outputTranscript file+ determining its latest transcript date (such that we download only new transcripts         '
-#========================= #
-
-from datetime import datetime
-import os, glob, pickle
-os.chdir("C:\\Users\\siebe\\GD\\Engineering\\.Python\\output")
-for f in glob.glob('*'): print(f)
-
-
-#recover last transcript output file: #TODO if it exists
-transcriptTextFileTitle = glob.glob('*txt') # input for open 
-with open(transcriptTextFileTitle[0],encoding='utf8') as file:
-    a_strings_transcripts = file.read()
-del transcriptTextFileTitle
-
-
-#determining the most recent date of the transcriptfile
-datetime_lastVid = datetime.strptime(a_strings_transcripts[4:12], '%y-%m-%d')
-delta = datetime.today() - datetime_lastVid
-print( 'this many days since the latest transcript in our latest output file: ', delta.days)
-
-
-    
-
-
-#%%=======================#
 '            User input:                '
 #========================= #
 api_key = 'AIzaSyDZlegWZl3Mbi7xGPgOnB3qbQXD5EkbSCg' # input (your) API-key ()
 # 
+newTranscript = True
 
-max_videos = 1000 #specify how many videos have to be incluced
-# |
-# max_videos = delta.days #specify how many videos have to be incluced
 
         # you can add some channels, for easy switching the input to the program:
 # channel_Id = "UCfpnY5NnBl-8L7SvICuYkYQ" #Scott adams
-channel_Id = "UCNAxrHudMfdzNi6NxruKPLw" #sam harris
+# channel_Id = "UCNAxrHudMfdzNi6NxruKPLw" #sam harris
 # channel_Id = "UCGaVdbSav8xWuFWTadK6loA" #vlogbrothers
 # channel_Id = "UCh_dVD10YuSghle8g6yjePg" #naval
-# channel_Id = "UC88A5W9XyWx7WSwthd5ykhw" #Krishnamurti
+channel_Id = "UC88A5W9XyWx7WSwthd5ykhw" #Krishnamurti
 
+
+
+#%%=======================#
+'  Import latest outputTranscript file+ determining its latest transcript date (such that we download only new transcripts         '
+#========================= #
+
+
+if newTranscript == False:
+    from datetime import datetime
+    import os, glob, pickle
+    os.chdir("C:\\Users\\siebe\\GD\\Engineering\\.Python\\output")
+    for f in glob.glob('*txt'): print(f)
+    os.startfile(os.getcwd())
+    #recover last transcript output file: #TODO if it exists
+    transcriptTextFileTitle = glob.glob('*txt') # input for open 
+    with open(transcriptTextFileTitle[0],encoding='utf8') as file:
+        a_strings_transcripts = file.read()
+    del transcriptTextFileTitle
+    
+    #determining the most recent date of the transcriptfile
+    datetime_lastVid = datetime.strptime(a_strings_transcripts[4:12], '%y-%m-%d')
+    delta = datetime.today() - datetime_lastVid
+    print( 'this many days since the latest transcript in our latest output file: ', delta.days)
+
+
+# =============================================================================
+#  
+# =============================================================================
+
+
+if newTranscript==True:
+    max_videos = 1000 #specify how many videos have to be incluced
+else:
+    max_videos = delta.days #specify how many videos have to be incluced
 
 
 
@@ -176,6 +182,7 @@ def textTranscriptExtractor():
     print('time it took to extract the text in secs:', round(time.time() - start_time))
     return a_strings_transcripts
 
+
 a_strings_transcripts = textTranscriptExtractor()
 # |
 a_strings_transcriptsNew = textTranscriptExtractor()
@@ -187,9 +194,10 @@ aaa = a_strings_transcriptsNew + a_strings_transcripts
 # #export if necessary:
 # =============================================================================
 import re
-datesinTextFile = re.findall("\d{4}-\d{2}-\d{2}", aaa)
-datesinTextFile[-1]
-datesinTextFile[0]
+datesinTextFile = re.findall("\d{4}-\d{2}-\d{2}", a_strings_transcripts) # will be used to name the transcript file that is save to disk under the earliest and latest transcript date
+# |
+# datesinTextFile = re.findall("\d{4}-\d{2}-\d{2}", a_strings_transcripts)
+
 
 channelTitle = metaDataYoutubeVideo[0][1]['channelTitle'] # just for passing ti to the output file name
 with open(f'C:\\Users\\siebe\\GD\\Engineering\\.Python\\output\\transcripts_{channelTitle}_between_{datesinTextFile[0]}_and_{datesinTextFile[-1]}.txt', "w",encoding="utf-8") as text_file:
