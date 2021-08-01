@@ -17,7 +17,7 @@ os.chdir("C:\\Users\\siebe\\GD\\Engineering\\.Python\\output")
 for f in glob.glob('*'): print(f)
 
 
-#recover last transcript output file:
+#recover last transcript output file: #TODO if it exists
 transcriptTextFileTitle = glob.glob('*txt') # input for open 
 with open(transcriptTextFileTitle[0],encoding='utf8') as file:
     a_strings_transcripts = file.read()
@@ -30,6 +30,8 @@ delta = datetime.today() - datetime_lastVid
 print( 'this many days since the latest transcript in our latest output file: ', delta.days)
 
 
+    
+
 
 #%%=======================#
 '            User input:                '
@@ -37,13 +39,17 @@ print( 'this many days since the latest transcript in our latest output file: ',
 api_key = 'AIzaSyDZlegWZl3Mbi7xGPgOnB3qbQXD5EkbSCg' # input (your) API-key ()
 # 
 
-max_videos = delta.days #specify how many videos have to be incluced
+max_videos = 1000 #specify how many videos have to be incluced
+# |
+# max_videos = delta.days #specify how many videos have to be incluced
 
         # you can add some channels, for easy switching the input to the program:
-channel_Id = "UCfpnY5NnBl-8L7SvICuYkYQ" #Scott adams
-# channel_Id = "UCNAxrHudMfdzNi6NxruKPLw" #sam harris
+# channel_Id = "UCfpnY5NnBl-8L7SvICuYkYQ" #Scott adams
+channel_Id = "UCNAxrHudMfdzNi6NxruKPLw" #sam harris
 # channel_Id = "UCGaVdbSav8xWuFWTadK6loA" #vlogbrothers
 # channel_Id = "UCh_dVD10YuSghle8g6yjePg" #naval
+# channel_Id = "UC88A5W9XyWx7WSwthd5ykhw" #Krishnamurti
+
 
 
 
@@ -170,8 +176,9 @@ def textTranscriptExtractor():
     print('time it took to extract the text in secs:', round(time.time() - start_time))
     return a_strings_transcripts
 
+a_strings_transcripts = textTranscriptExtractor()
+# |
 a_strings_transcriptsNew = textTranscriptExtractor()
-
 aaa = a_strings_transcriptsNew + a_strings_transcripts
 
 
@@ -186,7 +193,9 @@ datesinTextFile[0]
 
 channelTitle = metaDataYoutubeVideo[0][1]['channelTitle'] # just for passing ti to the output file name
 with open(f'C:\\Users\\siebe\\GD\\Engineering\\.Python\\output\\transcripts_{channelTitle}_between_{datesinTextFile[0]}_and_{datesinTextFile[-1]}.txt', "w",encoding="utf-8") as text_file:
-    text_file.write(aaa)
+    text_file.write(a_strings_transcripts)
+    # |
+    # text_file.write(aaa)
 
 
 #export the date last, the most recent date will be used to determine how many transcripts need to be scraped for the next time (see first section where the pickle is loaded)
