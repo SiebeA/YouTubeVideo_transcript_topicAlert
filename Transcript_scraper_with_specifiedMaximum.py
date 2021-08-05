@@ -10,41 +10,48 @@ Bugs resolved:
 #%%=======================#
 '            User input:                '
 #========================= #
-api_key = 'AIzaSyDZlegWZl3Mbi7xGPgOnB3qbQXD5EkbSCg' # input (your) API-key ()
+api_key = '' # input (your) API-key ()
 # 
-newTranscript = True
+newTranscript = False # if it were to be the first, a new txt file is created; after: the scraped transcripts are appended to the existing txt file
 
 
         # you can add some channels, for easy switching the input to the program:
-# channel_Id = "UCfpnY5NnBl-8L7SvICuYkYQ" #Scott adams
+channel_Id = "UCfpnY5NnBl-8L7SvICuYkYQ" #Scott adams
 # channel_Id = "UCNAxrHudMfdzNi6NxruKPLw" #sam harris
 # channel_Id = "UCGaVdbSav8xWuFWTadK6loA" #vlogbrothers
 # channel_Id = "UCh_dVD10YuSghle8g6yjePg" #naval
-channel_Id = "UC88A5W9XyWx7WSwthd5ykhw" #Krishnamurti
+# channel_Id = "UC88A5W9XyWx7WSwthd5ykhw" #Krishnamurti
+
+# channel_ID = dict(ScottAdams = "UCfpnY5NnBl-8L7SvICuYkYQ", # in dict?
+#                   SamHarris = "UCNAxrHudMfdzNi6NxruKPLw",
+#                   Krishnamurti = "UC88A5W9XyWx7WSwthd5ykhw",
+#                   VlogBrothers = "UCGaVdbSav8xWuFWTadK6loA",
+#                   Naval = "UCh_dVD10YuSghle8g6yjePg" 
+#                   )
 
 
 
 #%%=======================#
-'  Import latest outputTranscript file+ determining its latest transcript date (such that we download only new transcripts         '
+'  Import latest outputTranscript file if already exists + determining its latest transcript date (such that we download only new transcripts         '
 #========================= #
-
 
 if newTranscript == False:
     from datetime import datetime
     import os, glob, pickle
-    os.chdir("C:\\Users\\siebe\\GD\\Engineering\\.Python\\output")
-    for f in glob.glob('*txt'): print(f)
+    os.chdir("C:\\Users\\siebe\\GD\\Engineering\\.Python\\output") # dir of the formerly stored transcript files, if they exist already
+    for f in glob.glob('*txt'): print(f,"\n")
     os.startfile(os.getcwd())
-    #recover last transcript output file: #TODO if it exists
-    transcriptTextFileTitle = glob.glob('*txt') # input for open 
-    with open(transcriptTextFileTitle[0],encoding='utf8') as file:
-        a_strings_transcripts = file.read()
-    del transcriptTextFileTitle
+   
+    transcriptTextFileTitle = glob.glob('*txt') 
+    channel = input("\nFrom the existing transcripts, which youtube channel is it that you want to scrape the new transcripts from, and append them to the txt file which are printed above?... copy and paste the name of that file here -->   ")
     
+    with open(channel,encoding='utf8') as file:
+        a_strings_transcripts_existing = file.read()
+
     #determining the most recent date of the transcriptfile
-    datetime_lastVid = datetime.strptime(a_strings_transcripts[4:12], '%y-%m-%d')
+    datetime_lastVid = datetime.strptime(a_strings_transcripts_existing[4:12], '%y-%m-%d')
     delta = datetime.today() - datetime_lastVid
-    print( 'this many days since the latest transcript in our latest output file: ', delta.days)
+    print( 'this many days since the latest transcript in our latest output file till today ', delta.days)
 
 
 # =============================================================================
@@ -55,7 +62,7 @@ if newTranscript == False:
 if newTranscript==True:
     max_videos = 1000 #specify how many videos have to be incluced
 else:
-    max_videos = delta.days #specify how many videos have to be incluced
+    max_videos = delta.days #specify how many videos have to be incluced #bug is when the channel uploads more videos per day, then some will be missed. 
 
 
 
@@ -85,7 +92,7 @@ def json_storer(): # stores the video meta-data; including Ids required for down
             data_json = json.loads(response.read()) 
             b_json_files.append(data_json)
             i +=1
-            print(counter)
+            print(f" nextpagetoken nr.:{counter}")
             counter +=1
         print(youtubeChannelMetaDataUrl)
     return b_json_files
@@ -142,12 +149,10 @@ transcripts = transcriptDownloader(ids_vids)# i0=succesfull i2=unsuccesful in tr
 #%%=======================#
 '            correction for missing transcripts                '
 #========================= #
-# sometimes a transcript is missing, then we need to make new lists of the other transcript meta data, otherwise wrong transcripts are attributed to the wrong metaData
+# sometimes a transcript is missing, then we need to make new lists of the other transcript meta data, otherwise wrong transcripts are attributed to the wrong metaData s.a. date or ID
 
-dic = {i: (f,d) for i,f,d in zip(ids_vids,date_vids,title_vids)} #more consise alternative #TODO make a pop loop in case more than 1 transcripts are missing
+dic = {i: (f,d) for i,f,d in zip(ids_vids,date_vids,title_vids)} #storing date and title as keys corresponding to the ids\values
 
-
-# dic.pop(transcripts[1][0])
 
 
 for i in transcripts[1]:
@@ -170,23 +175,27 @@ title_vids = [i[1][1] for i in dic.items()]
 def textTranscriptExtractor():
     import time
     start_time = time.time()
-    a_strings_transcripts = ""      
     counter = 0
+    transcript_txtFile = ""
     # for i in range(10): #(len(transcripts[0])):
     for key,date,title,idd in zip( transcripts[0],date_vids,title_vids,ids_vids):
-        a_strings_transcripts += str(counter)+"\n" + date +"\n"+idd+"\n"+ title +"\n\n" 
+        transcript_txtFile += str(counter)+"\n" + date +"\n"+idd+"\n"+ title +"\n\n" 
         for i in transcripts[0][key]: #so all the 
-            a_strings_transcripts += i['text']+" " #the text is written under the date,id,title
-        a_strings_transcripts +="\n\n" 
+            transcript_txtFile += i['text']+" " #the text is written under the date,id,title
+        transcript_txtFile +="\n\n" 
         counter +=1
     print('time it took to extract the text in secs:', round(time.time() - start_time))
-    return a_strings_transcripts
+    return transcript_txtFile
 
 
-a_strings_transcripts = textTranscriptExtractor()
+if newTranscript == True:
+    a_strings_transcripts = textTranscriptExtractor()
+else:
+    a_strings_transcripts = textTranscriptExtractor()
+    a_strings_transcripts = a_strings_transcripts + a_strings_transcripts_existing
 # |
-a_strings_transcriptsNew = textTranscriptExtractor()
-aaa = a_strings_transcriptsNew + a_strings_transcripts
+# a_strings_transcriptsNew = textTranscriptExtractor()
+# aaa = a_strings_transcriptsNew + a_strings_transcripts
 
 
 
@@ -194,7 +203,7 @@ aaa = a_strings_transcriptsNew + a_strings_transcripts
 # #export if necessary:
 # =============================================================================
 import re
-datesinTextFile = re.findall("\d{4}-\d{2}-\d{2}", a_strings_transcripts) # will be used to name the transcript file that is save to disk under the earliest and latest transcript date
+datesinTextFile = re.findall("\d{4}-\d{2}-\d{2}", a_strings_transcripts) # will be used to name the transcript file with earliest and latest transcript date in the title
 # |
 # datesinTextFile = re.findall("\d{4}-\d{2}-\d{2}", a_strings_transcripts)
 
@@ -206,8 +215,8 @@ with open(f'C:\\Users\\siebe\\GD\\Engineering\\.Python\\output\\transcripts_{cha
     # text_file.write(aaa)
 
 
-#export the date last, the most recent date will be used to determine how many transcripts need to be scraped for the next time (see first section where the pickle is loaded)
-with open('C:\\Users\\siebe\\GD\\Engineering\\.Python\\output\\dateVids.pickle', 'wb') as handle:
-    pickle.dump(date_vids, handle, protocol=pickle.HIGHEST_PROTOCOL)
+# #export the date last, the most recent date will be used to determine how many transcripts need to be scraped for the next time (see first section where the pickle is loaded)
+# with open('C:\\Users\\siebe\\GD\\Engineering\\.Python\\output\\dateVids.pickle', 'wb') as handle:
+#     pickle.dump(date_vids, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 
