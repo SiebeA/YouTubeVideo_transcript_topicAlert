@@ -43,7 +43,7 @@ if newTranscript == False:
     os.startfile(os.getcwd())
    
     transcriptTextFileTitle = glob.glob('*txt') 
-    channel = input("\nFrom the existing transcripts, which youtube channel is it that you want to scrape the new transcripts from, and append them to the txt file which are printed above?... copy and paste the name of that file here -->   ")
+    channel = input("\nFrom the existing transcripts, which youtube channel is it that you want to scrape the new transcripts from, and append them to the txt file which are printed above?... copy (right mouse) and paste the name of that file here -->   ")
     
     with open(channel,encoding='utf8') as file:
         a_strings_transcripts_existing = file.read()
