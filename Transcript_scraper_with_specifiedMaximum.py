@@ -16,11 +16,12 @@ newTranscript = False # if it were to be the first, a new txt file is created; a
 
 
         # you can add some channels, for easy switching the input to the program:
-channel_Id = "UCfpnY5NnBl-8L7SvICuYkYQ" #Scott adams
+# channel_Id = "UCfpnY5NnBl-8L7SvICuYkYQ" #Scott adams
 # channel_Id = "UCNAxrHudMfdzNi6NxruKPLw" #sam harris
 # channel_Id = "UCGaVdbSav8xWuFWTadK6loA" #vlogbrothers
 # channel_Id = "UCh_dVD10YuSghle8g6yjePg" #naval
 # channel_Id = "UC88A5W9XyWx7WSwthd5ykhw" #Krishnamurti
+channel_Id = "UCRhV1rWIpm_pU19bBm_2RXw" #SeanCaroll
 
 # channel_ID = dict(ScottAdams = "UCfpnY5NnBl-8L7SvICuYkYQ", # in dict?
 #                   SamHarris = "UCNAxrHudMfdzNi6NxruKPLw",
@@ -35,7 +36,7 @@ channel_Id = "UCfpnY5NnBl-8L7SvICuYkYQ" #Scott adams
 '  Import latest outputTranscript file if already exists + determining its latest transcript date (such that we download only new transcripts         '
 #========================= #
 
-if newTranscript == False:
+if newTranscript == True:
     from datetime import datetime
     import os, glob, pickle
     os.chdir("C:\\Users\\siebe\\GD\\Engineering\\.Python\\output") # dir of the formerly stored transcript files, if they exist already
