@@ -1,6 +1,13 @@
 # YouTubeVideo_transcript_topicAlert
 
-Application goal:
+
+## TODO
+- Create executable script, such as `automate.sh`
+- Create .venv:
+    - youtube_transcript_api
+
+
+## Application goal:
 
   Say you follow a channel, or podcast on Youtube, you are interested in particular topics that they cover, but since they put out hours of content every X days, you want to be more efficient with the attention you allocate to the channel, then this script can help you. 
 
@@ -19,5 +26,11 @@ file: Transcript_scraper NLP analysis.py
 * The transcripts are neatly organized in a String, with the MetaData above it; plus, the txt files with all the transcripts are saved to disk under the channel's name and the dates of oldest and newest transcripts
 * user-inputted keyword returns the videos in which the keyword occurred. 
 * (more functionality coming)
-   
+
+
+## the full pipeline:
+1. Transcript scraper scripts
+2. IE: Information extraction
+3. 
+
  

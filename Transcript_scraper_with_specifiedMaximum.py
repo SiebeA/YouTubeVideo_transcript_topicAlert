@@ -14,14 +14,16 @@ api_key = '' # input (your) API-key ()
 # 
 newTranscript = False # if it were to be the first, a new txt file is created; after: the scraped transcripts are appended to the existing txt file
 
+dir_oldTranscripts = "/home/siebe/Insync/convexcreate@gmail.com/GD/Engineering/Python/Output"
 
         # you can add some channels, for easy switching the input to the program:
-# channel_Id = "UCfpnY5NnBl-8L7SvICuYkYQ" #Scott adams
+channel_Id = "UCfpnY5NnBl-8L7SvICuYkYQ" #Scott adams
 # channel_Id = "UCNAxrHudMfdzNi6NxruKPLw" #sam harris
 # channel_Id = "UCGaVdbSav8xWuFWTadK6loA" #vlogbrothers
 # channel_Id = "UCh_dVD10YuSghle8g6yjePg" #naval
 # channel_Id = "UC88A5W9XyWx7WSwthd5ykhw" #Krishnamurti
-channel_Id = "UCRhV1rWIpm_pU19bBm_2RXw" #SeanCaroll
+# channel_Id = "UCRhV1rWIpm_pU19bBm_2RXw" #SeanCaroll
+# channel_Id = "UCjYKsjt-7EDU78KEcVbhYnQ" #Shkreli
 
 # channel_ID = dict(ScottAdams = "UCfpnY5NnBl-8L7SvICuYkYQ", # in dict?
 #                   SamHarris = "UCNAxrHudMfdzNi6NxruKPLw",
@@ -36,15 +38,15 @@ channel_Id = "UCRhV1rWIpm_pU19bBm_2RXw" #SeanCaroll
 '  Import latest outputTranscript file if already exists + determining its latest transcript date (such that we download only new transcripts         '
 #========================= #
 
-if newTranscript == True:
+if newTranscript == False:
     from datetime import datetime
     import os, glob, pickle
-    os.chdir("C:\\Users\\siebe\\GD\\Engineering\\.Python\\output") # dir of the formerly stored transcript files, if they exist already
+    os.chdir(dir_oldTranscripts) # dir of the formerly stored transcript files, if they exist already
     for f in glob.glob('*txt'): print(f,"\n")
-    os.startfile(os.getcwd())
+    # os.startfile(os.getcwd())
    
     transcriptTextFileTitle = glob.glob('*txt') 
-    channel = input("\nFrom the existing transcripts, which youtube channel is it that you want to scrape the new transcripts from, and append them to the txt file which are printed above?... copy (right mouse) and paste the name of that file here -->   ")
+    channel = input("\n From the existing transcripts, which youtube channel is it that you want to scrape the new transcripts from, and append them to the txt file which are printed above?... copy (right mouse) and paste the name of that file on the following line  \n\n ")
     
     with open(channel,encoding='utf8') as file:
         a_strings_transcripts_existing = file.read()
@@ -52,7 +54,7 @@ if newTranscript == True:
     #determining the most recent date of the transcriptfile
     datetime_lastVid = datetime.strptime(a_strings_transcripts_existing[4:12], '%y-%m-%d')
     delta = datetime.today() - datetime_lastVid
-    print( 'this many days since the latest transcript in our latest output file till today ', delta.days)
+    print( f'\n It has been *** {delta.days} *** many days since the latest transcript in our latest output file till today ')
 
 
 # =============================================================================
@@ -210,7 +212,7 @@ datesinTextFile = re.findall("\d{4}-\d{2}-\d{2}", a_strings_transcripts) # will 
 
 
 channelTitle = metaDataYoutubeVideo[0][1]['channelTitle'] # just for passing ti to the output file name
-with open(f'C:\\Users\\siebe\\GD\\Engineering\\.Python\\output\\transcripts_{channelTitle}_between_{datesinTextFile[0]}_and_{datesinTextFile[-1]}.txt', "w",encoding="utf-8") as text_file:
+with open(f'/home/siebe/Insync/convexcreate@gmail.com/GD/Engineering/Python/Output{channelTitle}_between_{datesinTextFile[0]}_and_{datesinTextFile[-1]}.txt', "w",encoding="utf-8") as text_file:
     text_file.write(a_strings_transcripts)
     # |
     # text_file.write(aaa)
