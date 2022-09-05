@@ -1,8 +1,15 @@
+
+# paramaters:
+
+
+
+
+
 import os, glob, pickle
 import pandas as pd
 import re
 from collections import Counter
-import spacy
+# import spacy
 """
     - Also return the surrounding words of the match
     - Frequency dict without stop words
@@ -12,15 +19,12 @@ import spacy
 
 
 print(os.getcwd())
-os.chdir("C:\\Users\\siebe\\GD\\Engineering\\.Python\\output")
-for f in glob.glob('*.txt'): print(f)
-del f
-
-#load from disk:
-with open("outputFile_Real Coffee with Scott Adams_2021-07-10_2019-05-17.txt",encoding='utf8') as file:
-    a_strings_transcripts = file.read()
-os.chdir("C:\\Users\\siebe\\GD\\Engineering\\.Python") # change it back 
-del file
+# os.chdir("C:\\Users\\siebe\\GD\\Engineering\\.Python\\output")
+transcripts_dic = {}
+for f in glob.glob('*.txt'):
+    with open(f, encoding='utf8') as file: 
+        transcripts_dic[f] = file.read()
+del f, file
 
 # or when the last script is executed, load the string file:
 
@@ -31,6 +35,10 @@ del file
 #========================= #
 wordOfInterest = '1984'
 regex = r"(\d{{4}}-\d+-\d+\n.+\n.+)\n\n.+(?={})".format(wordOfInterest) #this regex returns the first match (in first parantheses: title, date, id)c of the 2nd match (2nd parenthesis) 
+
+
+a_strings_transcripts = transcripts_dic['transcript_Real Coffee with Scott Adams_between_2022-09-03_and_2019-05-17.txt']
+# for 1 set of transcripts:
 a_matches = re.findall(regex, a_strings_transcripts) #it returns the date and title 
 for i in a_matches: print(i,'\n')
 
