@@ -1,6 +1,11 @@
 
 """
 Check: whether your api_key is (still) valid
+
+BUGS that are still in:
+    
+    - if multiple videos per day uploaded by a channel, it does not count towards the nubmer of videos that need to be downloaded, as the assumption is that max 1 video per day will be uploaded
+    
     
 Bugs resolved:
     - when transcript is unavaible for a given ID, the next transcript is being written under the ID that was unavailable
@@ -10,20 +15,24 @@ Bugs resolved:
 #%%=======================#
 '            User input:                '
 #========================= #
-api_key = '' # input (your) API-key ()
-# 
-newTranscript = False # if it were to be the first, a new txt file is created; after: the scraped transcripts are appended to the existing txt file
+
+# input (your) API-key ; I do not explicitly write it here because otherwise people could copy it. 
+with open('api_key.txt', 'r') as file:
+    api_key = file.read().replace('\n', '')
+
+
+newTranscript = True # if it were to be the first, a new txt file is created; after: the scraped transcripts are appended to the existing txt file
 
 dir_oldTranscripts = "/home/siebe/Insync/convexcreate@gmail.com/GD/Engineering/Python/Output"
 
         # you can add some channels, for easy switching the input to the program:
-channel_Id = "UCfpnY5NnBl-8L7SvICuYkYQ" #Scott adams
+# channel_Id = "UCfpnY5NnBl-8L7SvICuYkYQ" #Scott adams
 # channel_Id = "UCNAxrHudMfdzNi6NxruKPLw" #sam harris
 # channel_Id = "UCGaVdbSav8xWuFWTadK6loA" #vlogbrothers
 # channel_Id = "UCh_dVD10YuSghle8g6yjePg" #naval
 # channel_Id = "UC88A5W9XyWx7WSwthd5ykhw" #Krishnamurti
 # channel_Id = "UCRhV1rWIpm_pU19bBm_2RXw" #SeanCaroll
-# channel_Id = "UCjYKsjt-7EDU78KEcVbhYnQ" #Shkreli
+channel_Id = "UCjYKsjt-7EDU78KEcVbhYnQ" #Shkreli
 
 # channel_ID = dict(ScottAdams = "UCfpnY5NnBl-8L7SvICuYkYQ", # in dict?
 #                   SamHarris = "UCNAxrHudMfdzNi6NxruKPLw",
@@ -57,11 +66,6 @@ if newTranscript == False:
     print( f'\n It has been *** {delta.days} *** many days since the latest transcript in our latest output file till today ')
 
 
-# =============================================================================
-#  
-# =============================================================================
-
-
 if newTranscript==True:
     max_videos = 1000 #specify how many videos have to be incluced
 else:
@@ -78,7 +82,7 @@ def json_storer(): # stores the video meta-data; including Ids required for down
     from urllib.request import urlopen
     import json
     b_json_files = []
-    youtubeChannelMetaDataUrl = f"https://www.googleapis.com/youtube/v3/search?key={api_key}&channelId={channel_Id}&part=snippet,id&order=date&maxResults=20"
+    youtubeChannelMetaDataUrl = f"https://www.googleapis.com/youtube/v3/search?key={api_key}&channelId={channel_Id}&part=snippet,id&order=date&maxResults=50"
     response = urlopen(youtubeChannelMetaDataUrl)
     data_json = json.loads(response.read()) 
     b_json_files.append(data_json)
@@ -135,6 +139,12 @@ ids_vids = [i[2] for i in metaDataYoutubeVideo][:max_videos]
 #%%=======================#
 '          3  Downloading with API'
 #========================= #
+
+"""
+2 variables necessary:
+    - ids_vids
+    - max_videos
+"""
 
 def transcriptDownloader(listofVideoIds):
     import time
@@ -212,7 +222,7 @@ datesinTextFile = re.findall("\d{4}-\d{2}-\d{2}", a_strings_transcripts) # will 
 
 
 channelTitle = metaDataYoutubeVideo[0][1]['channelTitle'] # just for passing ti to the output file name
-with open(f'/home/siebe/Insync/convexcreate@gmail.com/GD/Engineering/Python/Output{channelTitle}_between_{datesinTextFile[0]}_and_{datesinTextFile[-1]}.txt', "w",encoding="utf-8") as text_file:
+with open(f'/home/siebe/Insync/convexcreate@gmail.com/GD/Engineering/Python/Output/transcript_{channelTitle}_between_{datesinTextFile[0]}_and_{datesinTextFile[-1]}.txt', "w",encoding="utf-8") as text_file:
     text_file.write(a_strings_transcripts)
     # |
     # text_file.write(aaa)

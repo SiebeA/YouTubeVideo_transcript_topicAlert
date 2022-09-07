@@ -2,7 +2,6 @@
 
 
 ## TODO
-- Source the Api key from a txt file, now it cannot be seen on GitHub
 - Create executable script, such as `automate.sh`
 - Create .venv:
     - youtube_transcript_api
