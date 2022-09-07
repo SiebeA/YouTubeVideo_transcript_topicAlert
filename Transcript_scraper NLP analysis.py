@@ -1,14 +1,9 @@
-
-# paramaters:
-
-
-
-
-
+    
 import os, glob, pickle
 import pandas as pd
 import re
 from collections import Counter
+import spacy
 # import spacy
 """
     - Also return the surrounding words of the match
@@ -20,6 +15,8 @@ from collections import Counter
 
 print(os.getcwd())
 # os.chdir("C:\\Users\\siebe\\GD\\Engineering\\.Python\\output")
+
+# create a dictionary of all the transcripts-sets
 transcripts_dic = {}
 for f in glob.glob('*.txt'):
     with open(f, encoding='utf8') as file: 
@@ -36,7 +33,7 @@ del f, file
 wordOfInterest = '1984'
 regex = r"(\d{{4}}-\d+-\d+\n.+\n.+)\n\n.+(?={})".format(wordOfInterest) #this regex returns the first match (in first parantheses: title, date, id)c of the 2nd match (2nd parenthesis) 
 
-
+# Match the Title etc of the video in which the pattern occurs
 a_strings_transcripts = transcripts_dic['transcript_Real Coffee with Scott Adams_between_2022-09-03_and_2019-05-17.txt']
 # for 1 set of transcripts:
 a_matches = re.findall(regex, a_strings_transcripts) #it returns the date and title 
