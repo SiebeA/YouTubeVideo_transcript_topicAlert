@@ -30,20 +30,23 @@ del f, file
 #%%=======================#
 '            REGEX return episode where a key word was mentioned:                 '
 #========================= #
+
 wordOfInterest = '1984'
+chars_of_Context = 200
+
+
+# MATCH the Title etc of the video in which the pattern occurs
 regex = r"(\d{{4}}-\d+-\d+\n.+\n.+)\n\n.+(?={})".format(wordOfInterest) #this regex returns the first match (in first parantheses: title, date, id)c of the 2nd match (2nd parenthesis) 
 
-# Match the Title etc of the video in which the pattern occurs
 a_strings_transcripts = transcripts_dic['transcript_Real Coffee with Scott Adams_between_2022-09-03_and_2019-05-17.txt']
 # for 1 set of transcripts:
 a_matches = re.findall(regex, a_strings_transcripts) #it returns the date and title 
 for i in a_matches: print(i,'\n')
 
-# =============================================================================
-# #match the context of the patternz
-# =============================================================================
 
-wordOfInterestψContext = r"(.{{200}})({})(\s.{{200}})".format(wordOfInterest)# matches X chars before and after the word of interest
+# MATCH the context of the patterns
+wordOfInterestψContext = f"(.{chars_of_Context})({wordOfInterest})(\s.{chars_of_Context})"# matches X chars before and after the word of interest
+wordOfInterestψContext = re.sub('\.(\d+)\)', r'.{\1})', wordOfInterestψContext) # substituting/adding the curly brackets (in)
 
 aa_matches = re.findall(wordOfInterestψContext, a_strings_transcripts)
 for match in aa_matches: print(match,'\n\n')
