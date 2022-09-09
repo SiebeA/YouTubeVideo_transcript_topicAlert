@@ -1,6 +1,6 @@
     
 
-wordOfInterest = 'naval'
+wordOfInterest = 'rogan'
 chars_of_Context = 200
 
 
@@ -61,6 +61,9 @@ wordOfInterestψContext = re.sub('\.(\d+)\)', r'.{\1})', wordOfInterestψContext
 
 aa_matches = re.findall(wordOfInterestψContext, a_strings_transcripts)
 # it APPENDS, so delete file after use, or find a way to not append duplicate lines
+
+import os # remove the old output file, otherwise old matches are present
+os.remove("output.txt")
 with open("output.txt", "a") as myfile:
     for match in aa_matches:
         print(match,'\n\n')
