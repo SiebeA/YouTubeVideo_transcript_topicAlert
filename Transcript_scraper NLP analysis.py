@@ -19,11 +19,11 @@ import re
     - Corpus: each video is a seperate file, then TFIDF analysis
 """
 
-
 print(os.getcwd())
-# os.chdir("C:\\Users\\siebe\\GD\\Engineering\\.Python\\output")
+os.chdir("/home/siebe/Insync/convexcreate@gmail.com/GD/Engineering/Python/Output")
 
 # create a dictionary of all the transcripts-sets
+
 transcripts_dic = {}
 for f in glob.glob('*.txt'):
     with open(f, encoding='utf8') as file: 
@@ -46,32 +46,68 @@ regex = r"(\d{{4}}-\d+-\d+\n.+\n.+)\n\n.+(?={})".format(wordOfInterest) #this re
 
 a_strings_transcripts = transcripts_dic['transcript_Real Coffee with Scott Adams_between_2022-09-03_and_2019-05-17.txt']
 # for 1 set of transcripts:
-a_matches = re.findall(regex, a_strings_transcripts) #it returns the date and title 
-for i in a_matches: print(i,'\n')
+a_matches_metadata = re.findall(regex, a_strings_transcripts) #it returns the date and title 
+del regex
+# for _ in a_matches_metadata: print(_,'\n')
 
 
+# =============================================================================
 # OPTINAL: word statistics
-words = re.findall('\w+', a_strings_transcripts)
-terms = set(words)
+# =============================================================================
+# words = re.findall('\w+', a_strings_transcripts)
+# terms = set(words)
+# =============================================================================
 
 
 # MATCH the context of the patterns
 wordOfInterestψContext = f"(.{chars_of_Context})({wordOfInterest})(\s.{chars_of_Context})"# matches X chars before and after the word of interest
 wordOfInterestψContext = re.sub('\.(\d+)\)', r'.{\1})', wordOfInterestψContext) # substituting/adding the curly brackets (in)
 
-aa_matches = re.findall(wordOfInterestψContext, a_strings_transcripts)
+a_matches_KeywordψContext = re.findall(wordOfInterestψContext, a_strings_transcripts)
+# del a_strings_transcripts
 # it APPENDS, so delete file after use, or find a way to not append duplicate lines
 
 import os # remove the old output file, otherwise old matches are present
-os.remove("output.txt")
-with open("output.txt", "a") as myfile:
-    for match in aa_matches:
+try:
+    os.remove("output.txt")
+except FileNotFoundError:
+    pass
+
+with open("output.txt", "a") as _:
+    for match in a_matches_KeywordψContext:
         print(match,'\n\n')
-        # Create 
-        myfile.write(match[0]+match[1]+match[2] + "\n\n") # create 1 string per match, + newLine
+        SearchPattern = match[0][-50:]
+        _regex = "(\d\d\d\d-\d\d-\d\d\n.+\n.+\n)\n.+{}".format(SearchPattern)
+        
+        # first write the metadata to the string
+        
+        
+        MetaData_string = re.search(_regex,a_strings_transcripts)
+        MetaData_string = MetaData_string.group(1)
+        
+        _VideoID = re.search("\n(.+)\n",MetaData_string).group(1)
+        _VideoURL = "https://www.youtube.com/watch?v="+_VideoID
+        MetaData_string = re.sub("\n.+\n", "\nhttps://www.youtube.com/watch?v="+_VideoID+"\n", MetaData_string)
+        
+        
+        _.write(MetaData_string + "\n")
+        # 2nd write the context + wordOfInterest + context:
+        _.write(match[0]+match[1]+match[2] + "\n\n\n") # create 1 string per match, + newLine
+del chars_of_Context, wordOfInterestψContext
         
 # matching a group of the pattern; ie context before, the word, or context after ; each is parenthesized in the {wordOfInterestψContext} variable. 
 
+
+
+# =============================================================================
+# Return the metadata for every wordOfInterest match
+# =============================================================================
+
+# create a search pattern by the last X chars before the wordOfInterest, and use that to match the 0th group, which is the metaData information
+word = a_matches_KeywordψContext[0][0][-50:]
+_ = "(\d\d\d\d-\d\d-\d\d\n.+\n.+\n)\n.+{}".format(word)
+result = re.search(_,a_strings_transcripts)
+result = result.group(1)
 
 
 
@@ -84,10 +120,10 @@ with open("output.txt", "a") as myfile:
 #     #match the paragraphs with corresponding ID
 # regex = r"(\d\n\d+-\d+-\d+\n)(.+)\n(.+\n\n)(.+)"
 # matches = re.finditer(regex, a_strings_transcripts, re.MULTILINE) #beware of generator : needs to be reinitated after use
-# a_matchess = [(match.group(2),match.group(4))  for match in matches] #match ID and text
+# a_matches_metadatas = [(match.group(2),match.group(4))  for match in matches] #match ID and text
 # #convert to dic:
 # dict={}
-# for a,b in a_matchess:
+# for a,b in a_matches_metadatas:
 #     dict.setdefault(a, []).append(b)
 # del a,b
 # # explanation: how is it sorted? ; date chronological, despite when you look in the variable explorer (when it's sorted alphabetically)

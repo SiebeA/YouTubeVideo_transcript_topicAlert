@@ -2,6 +2,8 @@
 
 
 ## TODO
+# - combine the contextMatches with the date and title of the video
+-   make it faster
 - Return a link with a timestamp embedded
 - Summarizing periods in the videos, especially Scott adams, returning a time frame in which he e.g. speaks of 'ego', or 'Trump'
 - Create executable script, such as `automate.sh`
