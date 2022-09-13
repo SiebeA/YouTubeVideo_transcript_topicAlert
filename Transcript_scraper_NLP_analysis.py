@@ -8,6 +8,7 @@ chars_of_Context = 200
 '  Importing transcripts-sets              '
 #========================= #
 import os, glob
+import time
 # import pandas as pd
 import re
 # from collections import Counter
@@ -44,6 +45,7 @@ del f, file
 # MATCH the Title etc of the video in which the pattern occurs
 regex = r"(\d{{4}}-\d+-\d+\n.+\n.+)\n\n.+(?={})".format(wordOfInterest) #this regex returns the first match (in first parantheses: title, date, id)c of the 2nd match (2nd parenthesis) 
 
+_transcript_requested = 'ScottAdams'
 a_strings_transcripts = transcripts_dic['transcript_Real Coffee with Scott Adams_between_2022-09-03_and_2019-05-17.txt']
 # for 1 set of transcripts:
 a_matches_metadata = re.findall(regex, a_strings_transcripts) #it returns the date and title 
@@ -73,9 +75,15 @@ try:
 except FileNotFoundError:
     pass
 
-with open("output.txt", "a") as _:
+with open(f"SearchRequest{_transcript_requested}+'{wordOfInterest}.txt", "a") as _:
     for match in a_matches_KeywordψContext:
         print(match,'\n\n')
+        
+
+        _start = time.time()
+        _end = time.time()
+        print(_end - _start)
+        
         SearchPattern = match[0][-50:]
         _regex = "(\d\d\d\d-\d\d-\d\d\n.+\n.+\n)\n.+{}".format(SearchPattern)
         

@@ -3,13 +3,14 @@
 
 ## TODO
 # - combine the contextMatches with the date and title of the video
--   make it faster
+-   make it faster; now the writing? is very slow.
 - Return a link with a timestamp embedded
 - Summarizing periods in the videos, especially Scott adams, returning a time frame in which he e.g. speaks of 'ego', or 'Trump'
 - Create executable script, such as `automate.sh`
 - Create .venv:
     - youtube_transcript_api
 - inability to handle >1 videos per day
+- put multiple wordOfinterest matches in the same video under only 1 metadata
 
 
 ## Application goal:
