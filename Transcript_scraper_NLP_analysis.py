@@ -1,11 +1,11 @@
-    
+
 
 wordOfInterest = 'rogan'
 chars_of_Context = 200
 
 
 #%%=======================#
-'  Importing transcripts-sets              '
+'  Importing (all) transcripts-sets              '
 #========================= #
 import os, glob
 import time
@@ -53,7 +53,7 @@ del regex
 # for _ in a_matches_metadata: print(_,'\n')
 
 
-# =============================================================================
+#%% =============================================================================
 # OPTINAL: word statistics
 # =============================================================================
 # words = re.findall('\w+', a_strings_transcripts)
@@ -69,45 +69,51 @@ a_matches_KeywordψContext = re.findall(wordOfInterestψContext, a_strings_trans
 # del a_strings_transcripts
 # it APPENDS, so delete file after use, or find a way to not append duplicate lines
 
+#%%
 import os # remove the old output file, otherwise old matches are present
+output_file = None
 try:
-    os.remove("output.txt")
-except FileNotFoundError:
+    os.remove(output_file.name)
+except:
     pass
 
-with open(f"SearchRequest{_transcript_requested}+'{wordOfInterest}.txt", "a") as _:
+counter = 0
+error = []
+with open(f"SearchRequest{_transcript_requested}+'{wordOfInterest}.txt", "a") as output_file:
     for match in a_matches_KeywordψContext:
-        print(match,'\n\n')
-        
-
-        _start = time.time()
-        _end = time.time()
-        print(_end - _start)
-        
-        SearchPattern = match[0][-50:]
-        _regex = "(\d\d\d\d-\d\d-\d\d\n.+\n.+\n)\n.+{}".format(SearchPattern)
-        
-        # first write the metadata to the string
-        
-        
-        MetaData_string = re.search(_regex,a_strings_transcripts)
-        MetaData_string = MetaData_string.group(1)
-        
-        _VideoID = re.search("\n(.+)\n",MetaData_string).group(1)
-        _VideoURL = "https://www.youtube.com/watch?v="+_VideoID
-        MetaData_string = re.sub("\n.+\n", "\nhttps://www.youtube.com/watch?v="+_VideoID+"\n", MetaData_string)
-        
-        
-        _.write(MetaData_string + "\n")
-        # 2nd write the context + wordOfInterest + context:
-        _.write(match[0]+match[1]+match[2] + "\n\n\n") # create 1 string per match, + newLine
-del chars_of_Context, wordOfInterestψContext
+        try:
+            print(match,'\n\n')
+            # _start = time.time() # for measuring time
+            # _end = time.time()
+            # print(_end - _start)
+            
+            SearchPattern = match[0][-50:]
+            regex = "(\d\d\d\d-\d\d-\d\d\n.+\n.+\n)\n.+{}".format(SearchPattern)
+            
+            # first search the key to identify the corresponding metadata then write the metadata to the string
+            MetaData_string = re.search(regex,a_strings_transcripts)
+            MetaData_string = MetaData_string.group(1)
+            VideoID = re.search("\n(.+)\n",MetaData_string).group(1)
+            VideoURL = "https://www.youtube.com/watch?v="+VideoID
+            MetaData_string = re.sub("\n.+\n", "\nhttps://www.youtube.com/watch?v="+VideoID+"\n", MetaData_string)
+            
+            
+            output_file.write(MetaData_string + "\n")
+            # 2nd write the context + wordOfInterest + context:
+            output_file.write(match[0]+match[1]+match[2] + "\n\n\n") # create 1 string per match, + newLine
+            counter +=1
+            print(f"\n {counter} of {len(a_matches_KeywordψContext)}")
+        except AttributeError: # occurs when the searchPattern cannot be found
+            print("error")
+            error.append(SearchPattern)
+try: del wordOfInterestψContext,regex,VideoID,VideoURL 
+except: pass
         
 # matching a group of the pattern; ie context before, the word, or context after ; each is parenthesized in the {wordOfInterestψContext} variable. 
 
 
 
-# =============================================================================
+#%% =============================================================================
 # Return the metadata for every wordOfInterest match
 # =============================================================================
 
