@@ -6,9 +6,19 @@ BUGS that are still in:
     
     - if multiple videos per day uploaded by a channel, it does not count towards the nubmer of videos that need to be downloaded, as the assumption is that max 1 video per day will be uploaded
     
-    
+
+
 Bugs resolved:
     - when transcript is unavaible for a given ID, the next transcript is being written under the ID that was unavailable
+
+
+
+If not all transcripts seem to be imported:
+    - Newest videos have not generated a transcript yet by YouTube
+    - 
+
+
+
 """
 
 
