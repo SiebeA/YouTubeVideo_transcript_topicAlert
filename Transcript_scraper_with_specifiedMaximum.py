@@ -26,23 +26,25 @@ If not all transcripts seem to be imported:
 '            User input:                '
 #========================= #
 
-# input (your) API-key ; I do not explicitly write it here because otherwise people could copy it. 
+# input (your) API-key ; I do not explicitly write it here because otherwise people could copy it.
+import os
+os.chdir("/home/siebe/Insync/convexcreate@gmail.com/GD/Engineering/dev/YouTubeVideo_transcript_topicAlert")
 with open('api_key.txt', 'r') as file:
     api_key = file.read().replace('\n', '')
 
 
-newTranscript = True # if it were to be the first, a new txt file is created; after: the scraped transcripts are appended to the existing txt file
+newTranscript = False # if it were to be the first, a new txt file is created; after: the scraped transcripts are appended to the existing txt file
 
 dir_oldTranscripts = "/home/siebe/Insync/convexcreate@gmail.com/GD/Engineering/Python/Output"
 
         # you can add some channels, for easy switching the input to the program:
-# channel_Id = "UCfpnY5NnBl-8L7SvICuYkYQ" #Scott adams
+channel_Id = "UCfpnY5NnBl-8L7SvICuYkYQ" #Scott adams
 # channel_Id = "UCNAxrHudMfdzNi6NxruKPLw" #sam harris
 # channel_Id = "UCGaVdbSav8xWuFWTadK6loA" #vlogbrothers
 # channel_Id = "UCh_dVD10YuSghle8g6yjePg" #naval
 # channel_Id = "UC88A5W9XyWx7WSwthd5ykhw" #Krishnamurti
 # channel_Id = "UCRhV1rWIpm_pU19bBm_2RXw" #SeanCaroll
-channel_Id = "UCjYKsjt-7EDU78KEcVbhYnQ" #Shkreli
+# channel_Id = "UCjYKsjt-7EDU78KEcVbhYnQ" #Shkreli
 
 # channel_ID = dict(ScottAdams = "UCfpnY5NnBl-8L7SvICuYkYQ", # in dict?
 #                   SamHarris = "UCNAxrHudMfdzNi6NxruKPLw",
@@ -236,6 +238,8 @@ with open(f'/home/siebe/Insync/convexcreate@gmail.com/GD/Engineering/Python/Outp
     text_file.write(a_strings_transcripts)
     # |
     # text_file.write(aaa)
+
+os.remove(channel) # remove the old transcript file, otherwise we have a no-updated duplicate
 
 
 # #export the date last, the most recent date will be used to determine how many transcripts need to be scraped for the next time (see first section where the pickle is loaded)

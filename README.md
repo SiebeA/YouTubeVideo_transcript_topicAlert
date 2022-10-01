@@ -4,6 +4,7 @@
 ## TODO
 # - combine the contextMatches with the date and title of the video
 - Searching for 2 patterns close together
+- in [Transcript_scraper_with_specifiedMaximum]: Automatically delete the older version of the transcript file
 - enable the program to search sub-word-patterns (now only whole word patterns are searchable with re.findall)
 - create a bash executable automation file 
     - Parameterize the functions
