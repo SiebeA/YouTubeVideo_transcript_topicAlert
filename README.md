@@ -4,8 +4,10 @@
 ## TODO
 # - combine the contextMatches with the date and title of the video
 - Searching for 2 patterns close together
-- Parameterize the functions
-    - create a bash executable automation file 
+- enable the program to search sub-word-patterns (now only whole word patterns are searchable with re.findall)
+- create a bash executable automation file 
+    - Parameterize the functions
+        - wordOfInterest
 
 - make it faster; now the writing? is very slow.
 - Return a link with a timestamp embedded
@@ -15,6 +17,10 @@
     - youtube_transcript_api
 - inability to handle >1 videos per day
 - put multiple wordOfinterest matches in the same video under only 1 metadata
+
+## Bug & resolvement (learning purposes)
+- '[zZ]uck' does not return matches, 'Zuckerberg' does. 
+    - a_matches_KeywordψContext = re.findall(wordOfInterestψContext, a_strings_transcripts) > '(.{200})(zuck)(\\s.{200})' e.g. 'zuck' is a part of a word, because the regex searches for a space surrounding it, it returns no matches.
 
 
 ## Application goal:

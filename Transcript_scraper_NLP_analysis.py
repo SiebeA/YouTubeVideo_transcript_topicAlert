@@ -63,7 +63,7 @@ del regex
 
 
 # MATCH the context of the patterns
-wordOfInterestψContext = f"(.{chars_of_Context})({wordOfInterest})(\s.{chars_of_Context})"# matches X chars before and after the word of interest
+wordOfInterestψContext = f"(.{chars_of_Context})({wordOfInterest})(.{chars_of_Context})"# matches X chars before and after the word of interest
 wordOfInterestψContext = re.sub('\.(\d+)\)', r'.{\1})', wordOfInterestψContext) # substituting/adding the curly brackets (in)
 
 a_matches_KeywordψContext = re.findall(wordOfInterestψContext, a_strings_transcripts)
