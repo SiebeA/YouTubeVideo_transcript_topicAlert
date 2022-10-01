@@ -4,7 +4,10 @@
 ## TODO
 # - combine the contextMatches with the date and title of the video
 - Searching for 2 patterns close together
--   make it faster; now the writing? is very slow.
+- Parameterize the functions
+    - create a bash executable automation file 
+
+- make it faster; now the writing? is very slow.
 - Return a link with a timestamp embedded
 - Summarizing periods in the videos, especially Scott adams, returning a time frame in which he e.g. speaks of 'ego', or 'Trump'
 - Create executable script, such as `automate.sh`

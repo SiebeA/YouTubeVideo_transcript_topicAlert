@@ -22,6 +22,7 @@ import re
 
 print(os.getcwd())
 os.chdir("/home/siebe/Insync/convexcreate@gmail.com/GD/Engineering/Python/Output")
+# os.chdir("G:\\.shortcut-targets-by-id\\1aIirQdvbeZM3DsX_qz7FEEv7LiFQQ9Y3\\Engineering\\Python\Output")
 
 # create a dictionary of all the transcripts-sets
 
@@ -79,7 +80,7 @@ except:
 
 counter = 0
 error = []
-with open(f"SearchRequest{_transcript_requested}+'{wordOfInterest}.txt", "a") as output_file:
+with open(f"SearchResults/SearchRequest{_transcript_requested}+'{wordOfInterest}.txt", "a") as output_file:
     for match in a_matches_KeywordψContext:
         try:
             print(match,'\n\n')
