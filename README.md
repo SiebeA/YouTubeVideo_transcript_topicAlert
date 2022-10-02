@@ -1,25 +1,45 @@
 # YouTubeVideo_transcript_topicAlert
 
 
+
+# Checks and HowTo:
+
+- Check: whether your api_key is (still) valid
+- Run the entire `Transcript_scraper_with_specifiedMaximum.py`to import the transcripts and create one big `txt` file (if an older txt file already exists, the new transcripts are appended to the old file)
+- Set the 3 parameters at the top of the `Transcript_scraper_NLP_analysis.py` file, and then run the entire script. 
+
+
+# Troubleshoot
+If not all transcripts seem to be imported:
+​    - Newest videos have not generated a transcript yet by YouTube
+
+
+
+
+
 ## TODO
+
 # - combine the contextMatches with the date and title of the video
-- Searching for 2 patterns close together
-- in [Transcript_scraper_with_specifiedMaximum]: Automatically delete the older version of the transcript file
-- enable the program to search sub-word-patterns (now only whole word patterns are searchable with re.findall)
+## Need to haves:
 - create a bash executable automation file 
     - Parameterize the functions
         - wordOfInterest
-
+- Searching for 2 patterns close together
+- Parametrize an option to Only import last X transcripts (if you want recent search alerts, you don't need the older transcripts')
+- put multiple wordOfinterest matches in the same video under only 1 metadata
 - make it faster; now the writing? is very slow.
+    - Identify the bottleNeck
+    - Only import last X transcripts (if you want recent search alerts, you don't need the older transcripts')
+## Nice to Haves
+- in [Transcript_scraper_with_specifiedMaximum]: Automatically delete the older version of the transcript file
+- enable the program to search sub-word-patterns (now only whole word patterns are searchable with re.findall)
 - Return a link with a timestamp embedded
 - Summarizing periods in the videos, especially Scott adams, returning a time frame in which he e.g. speaks of 'ego', or 'Trump'
-- Create executable script, such as `automate.sh`
-- Create .venv:
-    - youtube_transcript_api
 - inability to handle >1 videos per day
-- put multiple wordOfinterest matches in the same video under only 1 metadata
+- when videos per day uploaded by a channel, it does not count towards the nubmer of videos that need to be downloaded, as the assumption is that max 1 video per day will be uploaded, is this still the case?
 
 ## Bug & resolvement (learning purposes)
+- when transcript is unavaible for a given ID, the next transcript is being written under the ID that was unavailable
 - '[zZ]uck' does not return matches, 'Zuckerberg' does. 
     - a_matches_KeywordψContext = re.findall(wordOfInterestψContext, a_strings_transcripts) > '(.{200})(zuck)(\\s.{200})' e.g. 'zuck' is a part of a word, because the regex searches for a space surrounding it, it returns no matches.
 
