@@ -115,7 +115,8 @@ def Create_SearchResult_File(a_matches_KeywordψContext):
     except:
         pass
     counter = 0
-    error = []
+    # error = []
+    error = {'SearchPattern':[],'regex':[]}
     with open(f"SearchResults/SearchRequest{_transcript_requested}+'{wordOfInterest}.txt", "a") as output_file:
         output_file.truncate(0) # removes all text in the file?
         for match in a_matches_KeywordψContext:
@@ -138,7 +139,8 @@ def Create_SearchResult_File(a_matches_KeywordψContext):
                 print(f"\n {counter} of {len(a_matches_KeywordψContext)}")
             except AttributeError: # occurs when the searchPattern cannot be found
                 print("AttributeError")
-                error.append(SearchPattern)
+                error['SearchPattern'].append(SearchPattern), error['regex'].append(regex)
+                continue
                 
                 return VideoURL
 
@@ -185,9 +187,10 @@ def Create_SearchResult_File(a_matches_KeywordψContext):
 # =============================================================================
 
 #%%
-wordOfInterest = 'eminem' # Only lowercase will return matches
+wordOfInterest = 'fake' # Only lowercase will return matches
+words_of_interest = ['rogan', 'fake', 'dutch', ]
 chars_of_Context = 200
-_transcript_requested = 'scott_adams' # input-format: Firstname_Lastname
+_transcript_requested = 'martin_shkreli' # input-format: Firstname_Lastname
 
 if __name__ == '__main__':
     import re
@@ -196,9 +199,9 @@ if __name__ == '__main__':
     for string in list(transcripts_dic.keys()):
         # print(string)
         if _transcript_requested.split('_')[0].lower() in re.split("_| ", string.lower()) or _transcript_requested.split('_')[1].lower() in re.split("_| ", string.lower()):
-            print('\n this is the inferred transcript file request:',string,'\n')
+            print('\n this is the inferred transcript file request:\n\n',string,'\n')
             transcriptFile_requested = string
-    user_confirmation = input("Enter on the following line whether this is the right transcript txt file? yes/no\n")
+    user_confirmation = input("Enter on the following line whether this is the right transcript txt file? yes/no\n\n")
     if user_confirmation.lower() != 'yes':
         print(transcripts_dic.keys())
         transcriptFile_requested = input("\nEnter the name of the transcript txt file on the following line:\n")
