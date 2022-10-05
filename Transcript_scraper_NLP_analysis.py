@@ -2,25 +2,20 @@
 #%%=======================#
 '  Importing (all) transcripts-sets              '
 #========================= #
+
 def transcript_dic():
     import os, glob
-    # import time
-    # import pandas as pd
-    # from collections import Counter
-    # import spacy
     """
         - Also return the surrounding words of the match
         - Frequency dict without stop words
         - Frequency NER
         - Corpus: each video is a seperate file, then TFIDF analysis
     """
-    
     print(os.getcwd())
     os.chdir("/home/siebe/Insync/convexcreate@gmail.com/GD/Engineering/Python/Output")
     # os.chdir("G:\\.shortcut-targets-by-id\\1aIirQdvbeZM3DsX_qz7FEEv7LiFQQ9Y3\\Engineering\\Python\Output")
     
     # create a dictionary of all the transcripts-sets
-    
     transcripts_dic = {}
     for f in glob.glob('*.txt'):
         with open(f, encoding='utf8') as file: 
@@ -30,18 +25,12 @@ def transcript_dic():
 
 # or when the last script is executed, load the string file:
 
-    
-    
-
-
 #%%=======================#
 '            REGEX return episode where a key word was mentioned:                 '
 #========================= #
 
 def FindAll_wordOfInterest(wordOfInterest:str,transcripts_dic:dict,transcriptFile_requested:str):
     '''
-    
-
     Parameters
     ----------
     wordOfInterest : STR
@@ -53,7 +42,6 @@ def FindAll_wordOfInterest(wordOfInterest:str,transcripts_dic:dict,transcriptFil
     -------
     a_metadata_of_matches : Match_object
         DESCRIPTION.
-
     '''
 
     # MATCH the Title etc of the video in which the pattern occurs
@@ -77,10 +65,25 @@ def FindAll_wordOfInterest(wordOfInterest:str,transcripts_dic:dict,transcriptFil
 # terms = set(words)
 # =============================================================================
 
+def FindAll_contextYwordOfInterest(a_strings_transcripts,chars_of_Context,wordOfInterestψContext):
+    '''
+    
 
-# MATCH the context of the patterns
+    Parameters
+    ----------
+    a_strings_transcripts : STR
+        DESCRIPTION.
+    chars_of_Context : INT
+        DESCRIPTION.
+    wordOfInterestψContext : STR
+        DESCRIPTION.
 
-def FindAll_contextYwordOfInterest(a_strings_transcripts):
+    Returns
+    -------
+    a_matches_KeywordψContext : STR
+        DESCRIPTION.
+
+    '''
     wordOfInterestψContext = f"(.{chars_of_Context})({wordOfInterest})(.{chars_of_Context})"# matches X chars before and after the word of interest
     wordOfInterestψContext = re.sub('\.(\d+)\)', r'.{\1})', wordOfInterestψContext) # substituting/adding the curly brackets (in)
     
@@ -90,8 +93,21 @@ def FindAll_contextYwordOfInterest(a_strings_transcripts):
     return a_matches_KeywordψContext
 
 #%%
-
 def Create_SearchResult_File(a_matches_KeywordψContext):
+    """
+    
+
+    Parameters
+    ----------
+    a_matches_KeywordψContext : TYPE
+        DESCRIPTION.
+
+    Returns
+    -------
+    VideoURL : TYPE
+        DESCRIPTION.
+
+    """
     import os # remove the old output file, otherwise old matches are present
     output_file = None
     try:
@@ -105,10 +121,6 @@ def Create_SearchResult_File(a_matches_KeywordψContext):
         for match in a_matches_KeywordψContext:
             try:
                 print(match,'\n\n')
-                # _start = time.time() # for measuring time
-                # _end = time.time()
-                # print(_end - _start)
-                
                 SearchPattern = match[0][-50:]
                 regex = "(\d\d\d\d-\d\d-\d\d\n.+\n.+\n)\n.+{}".format(SearchPattern)
                 
@@ -118,7 +130,6 @@ def Create_SearchResult_File(a_matches_KeywordψContext):
                 VideoID = re.search("\n(.+)\n",MetaData_string).group(1)
                 VideoURL = "https://www.youtube.com/watch?v="+VideoID
                 MetaData_string = re.sub("\n.+\n", "\nhttps://www.youtube.com/watch?v="+VideoID+"\n", MetaData_string)
-                
                 
                 output_file.write(MetaData_string + "\n")
                 # 2nd write the context + wordOfInterest + context:
@@ -130,25 +141,6 @@ def Create_SearchResult_File(a_matches_KeywordψContext):
                 error.append(SearchPattern)
                 
                 return VideoURL
-    # try: del regex,VideoID,VideoURL 
-    # except: pass
-
-# matching a group of the pattern; ie context before, the word, or context after ; each is parenthesized in the {wordOfInterestψContext} variable. 
-
-
-
-#%% =============================================================================
-# Return the metadata for every wordOfInterest match
-# =============================================================================
-
-## create a search pattern by the last X chars before the wordOfInterest, and use that to match the 0th group, which is the metaData information
-# word = a_matches_KeywordψContext[0][0][-50:]
-# _ = "(\d\d\d\d-\d\d-\d\d\n.+\n.+\n)\n.+{}".format(word)
-# result = re.search(_,a_strings_transcripts)
-# result = result.group(1)
-
-
-
 
 # see 'proposed_Ner_counter.py'
 
@@ -201,7 +193,6 @@ if __name__ == '__main__':
     import re
 
     transcripts_dic = transcript_dic()
-    
     for string in list(transcripts_dic.keys()):
         # print(string)
         if _transcript_requested.split('_')[0].lower() in re.split("_| ", string.lower()) or _transcript_requested.split('_')[1].lower() in re.split("_| ", string.lower()):
@@ -212,8 +203,8 @@ if __name__ == '__main__':
         print(transcripts_dic.keys())
         transcriptFile_requested = input("\nEnter the name of the transcript txt file on the following line:\n")
         
-    a_metadata_of_matches,a_strings_transcripts = FindAll_wordOfInterest(wordOfInterest,transcripts_dic,transcriptFile_requested)
+    a_matches_KeywordψContext,a_strings_transcripts = FindAll_wordOfInterest(wordOfInterest,transcripts_dic,transcriptFile_requested)
     
-    a_Context_of_matches = FindAll_contextYwordOfInterest(a_strings_transcripts)
+    a_Context_of_matches = FindAll_contextYwordOfInterest(a_strings_transcripts,chars_of_Context,wordOfInterest)
     
     Create_SearchResult_File(a_Context_of_matches)
