@@ -144,49 +144,14 @@ def Create_SearchResult_File(a_matches_KeywordψContext):
                 
                 return VideoURL
 
-# see 'proposed_Ner_counter.py'
 
+# #%% =============================================================================
+# #  NER counter ; see 'proposed_Ner_counter.py'
 # # =============================================================================
-# #  NER counter
-# # =============================================================================
 
-#     #match the paragraphs with corresponding ID
-# regex = r"(\d\n\d+-\d+-\d+\n)(.+)\n(.+\n\n)(.+)"
-# matches = re.finditer(regex, a_strings_transcripts, re.MULTILINE) #beware of generator : needs to be reinitated after use
-# a_metadata_of_matchess = [(match.group(2),match.group(4))  for match in matches] #match ID and text
-# #convert to dic:
-# dict={}
-# for a,b in a_metadata_of_matchess:
-#     dict.setdefault(a, []).append(b)
-# del a,b
-# # explanation: how is it sorted? ; date chronological, despite when you look in the variable explorer (when it's sorted alphabetically)
-
-#     # nlping the latest transcript (ie index 0)
-
-# nlp = spacy.load("en_core_web_sm")
-# doc = nlp(dict[list(dict.keys())[0]][0])
-
-#     #NER summarizing
-# labels, Counter = [ent.label_ for ent in doc.ents], 
-# Counter(labels)
-# items = [ent.text for ent in doc.ents if not (ent.label_ =='CARDINAL')]
-# a_nerCounter = pd.DataFrame(Counter(items).most_common(10), columns =['ner', 'occurence']) #1st argument = list of tuples with a coupleTuple
-#     #now scale to all the transcripts:
-# listOf_a_nerCounter = []
-# for key in list(dict.keys())[:5]:
-#     doc = nlp(dict[key][0])
-#     labels = [ent.label_ for ent in doc.ents]
-#     Counter(labels)
-#     items = [ent.text for ent in doc.ents]
-#     a_nerCounter = pd.DataFrame(Counter(items).most_common(10), columns =['ner', 'occurence']) #1st argument =
-#     listOf_a_nerCounter.append((key, pd.DataFrame(Counter(items).most_common(10), columns =['ner', 'occurence'])))
-# #TODO: id in the list with the df
-
+# %%===========================================================================
+# Execution 
 # =============================================================================
-# 
-# =============================================================================
-
-#%%
 wordOfInterest = 'dutch' # Only lowercase will return matches
 words_of_interest = ['rogan', 'fake', 'dutch', ]
 chars_of_Context = 200
