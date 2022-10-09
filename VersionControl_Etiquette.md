@@ -1,0 +1,2 @@
+- Parameterize the variables that serve as input for the function (i.e. the parameters)--for flexibility of course-- but also such that they don't longer show up in the DIFF and muddy the waters in those overviews.
+- Write down in the 'Need to have's' section and/or more it to the top of that section, such that when you switch to the DIFF (e.g. in Atom) of the README you are currently working on (Then it can also be used simultaneously with the DIFF of  the code as a version control update in Git-log
