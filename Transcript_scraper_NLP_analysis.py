@@ -48,7 +48,7 @@ def FindAll_wordOfInterest(wordOfInterest:str,transcripts_dic:dict,transcriptFil
     regex = r"(\d{{4}}-\d+-\d+\n.+\n.+)\n\n.+(?={})".format(wordOfInterest) #this regex returns the first match (in first parantheses: title, date, id)c of the 2nd match (2nd parenthesis) 
     
     a_strings_transcripts = transcripts_dic[transcriptFile_requested]
-    a_strings_transcripts = a_strings_transcripts.lower() # maximize recall VIDEO ID REQUIRES case sensitive, so links dont work
+    # a_strings_transcripts = a_strings_transcripts.lower() # maximize recall VIDEO ID REQUIRES case sensitive, so links dont work
     # for 1 set of transcripts:
     import re
     a_metadata_of_matches = re.findall(regex, a_strings_transcripts) #it returns the date and title 
@@ -87,7 +87,7 @@ def FindAll_contextYwordOfInterest(a_strings_transcripts,chars_of_Context,wordOf
     wordOfInterestψContext = f"(.{chars_of_Context})({wordOfInterest})(.{chars_of_Context})"# matches X chars before and after the word of interest
     wordOfInterestψContext = re.sub('\.(\d+)\)', r'.{\1})', wordOfInterestψContext) # substituting/adding the curly brackets (in)
     
-    a_matches_KeywordψContext = re.findall(wordOfInterestψContext, a_strings_transcripts)
+    a_matches_KeywordψContext = re.findall(wordOfInterestψContext, a_strings_transcripts,re.IGNORECASE)
     # del a_strings_transcripts
     # it APPENDS, so delete file after use, or find a way to not append duplicate lines
     return a_matches_KeywordψContext
@@ -187,10 +187,10 @@ def Create_SearchResult_File(a_matches_KeywordψContext):
 # =============================================================================
 
 #%%
-wordOfInterest = 'fake' # Only lowercase will return matches
+wordOfInterest = 'dutch' # Only lowercase will return matches
 words_of_interest = ['rogan', 'fake', 'dutch', ]
 chars_of_Context = 200
-_transcript_requested = 'martin_shkreli' # input-format: Firstname_Lastname
+_transcript_requested = 'scott__adams' # input-format: Firstname_Lastname
 
 if __name__ == '__main__':
     import re
