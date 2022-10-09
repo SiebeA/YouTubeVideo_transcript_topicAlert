@@ -52,7 +52,6 @@ def FindAll_wordOfInterest(wordOfInterest:str,transcripts_dic:dict,transcriptFil
     # for 1 set of transcripts:
     import re
     a_metadata_of_matches = re.findall(regex, a_strings_transcripts) #it returns the date and title 
-    del regex
     # for _ in a_metadata_of_matches: print(_,'\n')
     return a_metadata_of_matches,a_strings_transcripts
 
@@ -84,16 +83,20 @@ def FindAll_contextYwordOfInterest(a_strings_transcripts,chars_of_Context,wordOf
         DESCRIPTION.
 
     '''
-    wordOfInterestψContext = f"(.{chars_of_Context})({wordOfInterest})(.{chars_of_Context})"# matches X chars before and after the word of interest
-    wordOfInterestψContext = re.sub('\.(\d+)\)', r'.{\1})', wordOfInterestψContext) # substituting/adding the curly brackets (in)
+    regex_wordOfInterestψContext = f"(.{chars_of_Context})({wordOfInterest})(.{chars_of_Context})"# matches X chars before and after the word of interest
+    regex_wordOfInterestψContext = re.sub('\.(\d+)\)', r'.{\1})', regex_wordOfInterestψContext) # substituting/adding the curly brackets (in)
+    if book: # then don't blindly match 200 chars adjoining, but the rest of the paragraph:
+        regex_wordOfInterestψContext = re.sub('}','}|^.+',regex_wordOfInterestψContext)
+        regex_wordOfInterestψContext = re.sub('{','{|.+$',regex_wordOfInterestψContext)
+
     
-    a_matches_KeywordψContext = re.findall(wordOfInterestψContext, a_strings_transcripts,re.IGNORECASE)
+    a_matches_KeywordψContext = re.findall(regex_wordOfInterestψContext, a_strings_transcripts,flags=re.IGNORECASE|re.MULTILINE)
     # del a_strings_transcripts
     # it APPENDS, so delete file after use, or find a way to not append duplicate lines
     return a_matches_KeywordψContext
 
 #%%
-def Create_SearchResult_File(a_matches_KeywordψContext):
+def Create_SearchResult_File(a_matches_KeywordψContext,book):
     """
     
 
@@ -121,20 +124,23 @@ def Create_SearchResult_File(a_matches_KeywordψContext):
         output_file.truncate(0) # removes all text in the file?
         for match in a_matches_KeywordψContext:
             try:
-                print(match,'\n\n')
-                SearchPattern = match[0][-50:]
-                regex = "(\d\d\d\d-\d\d-\d\d\n.+\n.+\n)\n.+{}".format(SearchPattern)
+                if book != True: # then we have the metadata in Transcripts
+                    print(match,'\n\n')
+                    SearchPattern = match[0][-50:]
+                    regex = "(\d\d\d\d-\d\d-\d\d\n.+\n.+\n)\n.+{}".format(SearchPattern)
+                    
+                    # first search the key to identify the corresponding metadata then write the metadata to the string
+                    MetaData_string = re.search(regex,a_strings_transcripts)
+                    MetaData_string = MetaData_string.group(1)
+                    VideoID = re.search("\n(.+)\n",MetaData_string).group(1)
+                    VideoURL = "https://www.youtube.com/watch?v="+VideoID
+                    MetaData_string = re.sub("\n.+\n", "\nhttps://www.youtube.com/watch?v="+VideoID+"\n", MetaData_string)
+                    
+                    # METADATA write:
+                    output_file.write(MetaData_string + "\n")
+                # CONTEXT + WORDOFINTEREST + CONTEXT:
+                output_file.write(match[0]+"<"+match[1]+">"+match[2] + "\n\n\n") # create 1 string per match, + newLine
                 
-                # first search the key to identify the corresponding metadata then write the metadata to the string
-                MetaData_string = re.search(regex,a_strings_transcripts)
-                MetaData_string = MetaData_string.group(1)
-                VideoID = re.search("\n(.+)\n",MetaData_string).group(1)
-                VideoURL = "https://www.youtube.com/watch?v="+VideoID
-                MetaData_string = re.sub("\n.+\n", "\nhttps://www.youtube.com/watch?v="+VideoID+"\n", MetaData_string)
-                
-                output_file.write(MetaData_string + "\n")
-                # 2nd write the context + wordOfInterest + context:
-                output_file.write(match[0]+"<<<<<"+match[1]+">>>>>"+match[2] + "\n\n\n") # create 1 string per match, + newLine
                 counter +=1
                 print(f"\n {counter} of {len(a_matches_KeywordψContext)}")
             except AttributeError: # occurs when the searchPattern cannot be found
@@ -152,10 +158,11 @@ def Create_SearchResult_File(a_matches_KeywordψContext):
 # %%===========================================================================
 # Execution 
 # =============================================================================
-wordOfInterest = 'dutch' # Only lowercase will return matches
+wordOfInterest = 'Depression' # Only lowercase will return matches
 words_of_interest = ['rogan', 'fake', 'dutch', ]
 chars_of_Context = 200
-_transcript_requested = 'scott__adams' # input-format: Firstname_Lastname
+_transcript_requested = 'michael_pollan' # input-format: Firstname_Lastname
+book = True
 
 if __name__ == '__main__':
     import re
@@ -175,4 +182,4 @@ if __name__ == '__main__':
     
     a_Context_of_matches = FindAll_contextYwordOfInterest(a_strings_transcripts,chars_of_Context,wordOfInterest)
     
-    Create_SearchResult_File(a_Context_of_matches)
+    Create_SearchResult_File(a_Context_of_matches,book)
