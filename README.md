@@ -19,11 +19,8 @@ If not all transcripts seem to be imported:
 
 ## TODO
 
-# - combine the contextMatches with the date and title of the video
 ## Need to haves:
-- create a bash executable automation file 
-    - Parameterize the functions
-        - wordOfInterest
+- When it is X many days since last transcript; notify the user when the `Transcript_scraper_NLP_analysis.py` is executed of how many days since last.
 - Searching for 2 patterns close together
 - Parametrize an option to Only import last X transcripts (if you want recent search alerts, you don't need the older transcripts')
 - put multiple wordOfinterest matches in the same video under only 1 metadata
@@ -31,6 +28,8 @@ If not all transcripts seem to be imported:
     - Identify the bottleNeck
     - Only import last X transcripts (if you want recent search alerts, you don't need the older transcripts')
 ## Nice to Haves
+- execute the script WHEN system startup
+- for Transcripts, instead of cutting of at 200, cut of at a word boundary
 - in [Transcript_scraper_with_specifiedMaximum]: Automatically delete the older version of the transcript file
 - enable the program to search sub-word-patterns (now only whole word patterns are searchable with re.findall)
 - Return a link with a timestamp embedded
