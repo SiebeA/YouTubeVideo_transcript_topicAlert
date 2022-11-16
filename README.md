@@ -1,5 +1,16 @@
 # YouTubeVideo_transcript_topicAlert
 
+# What the Transcript_scraper_with_specifiedMaximum script will provide you
+Execute the file in its entirety and provide input to the prompts. This will provide you with a text_file with meta-data and transcripts of all the YouTube-channel's video, in the format of:
+
+```
+index of transcript
+Date of transcript/video
+video-id
+video-title
+
+text of the video-transcript (N lines)
+```
 
 
 # Checks and HowTo:

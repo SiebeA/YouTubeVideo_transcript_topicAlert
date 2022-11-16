@@ -15,14 +15,20 @@ newTranscript = False # if it were to be the first, a new txt file is created; a
 
 # input (your) API-key ; I do not explicitly write it here because otherwise people could copy it.
 import os
-os.chdir("/home/siebe/Insync/convexcreate@gmail.com/GD/Engineering/dev/YouTubeVideo_transcript_topicAlert")
+os.chdir("/home/Insync/Convexcreate@gmail.com/GD/Engineering/Development/YouTubeVideo_transcript_topicAlert")
 with open('api_key.txt', 'r') as file:
     api_key = file.read().replace('\n', '')
 
 
 
-dir_oldTranscripts = "/home/siebe/Insync/convexcreate@gmail.com/GD/Engineering/Python/Output"
+dir_oldTranscripts = "/home/Insync/Convexcreate@gmail.com/GD/Engineering/Python/Output"
 
+
+
+if newTranscript is True:
+    _ = input("\nconfirm that there is not already a existing transcript with 'y'\n")
+    if _ != 'y':
+        exit()
 
 
 
@@ -195,22 +201,23 @@ else:
 
 
 
-# =============================================================================
+#%% =============================================================================
 # #export if necessary:
 # =============================================================================
 import re
-datesinTextFile = re.findall("\d{4}-\d{2}-\d{2}", a_strings_transcripts) # will be used to name the transcript file with earliest and latest transcript date in the title
-# |
-# datesinTextFile = re.findall("\d{4}-\d{2}-\d{2}", a_strings_transcripts)
-
+if newTranscript != True:
+    datesinTextFile = re.findall("\d{4}-\d{2}-\d{2}", a_strings_transcripts_existing) # we need the dates of the preexisting file in order to open it (and write the new transcripts to ti)
+else:
+    datesinTextFile = re.findall("\d{4}-\d{2}-\d{2}", a_strings_transcripts)
 
 channelTitle = metaDataYoutubeVideo[0][1]['channelTitle'] # just for passing ti to the output file name
-with open(f'/home/siebe/Insync/convexcreate@gmail.com/GD/Engineering/Python/Output/transcript_{channelTitle}_between_{datesinTextFile[0]}_and_{datesinTextFile[-1]}.txt', "w",encoding="utf-8") as text_file:
-    text_file.write(a_strings_transcripts)
-    # |
-    # text_file.write(aaa)
 
-os.remove(channel) # remove the old transcript file, otherwise we have a no-updated duplicate
+with open(f'/home/Insync/Convexcreate@gmail.com/GD/Engineering/Python/Output/transcript_{channelTitle}_between_{datesinTextFile[0]}_and_{datesinTextFile[-1]}.txt', "w",encoding="utf-8") as text_file:
+    text_file.write(a_strings_transcripts)
+    import os
+    datesinTextFile = re.findall("\d{4}-\d{2}-\d{2}", a_strings_transcripts) # will be used to name the transcript file with earliest and latest transcript date in the title
+    os.rename(os.path.abspath(text_file.name),f'/home/Insync/Convexcreate@gmail.com/GD/Engineering/Python/Output/transcript_{channelTitle}_between_{datesinTextFile[0]}_and_{datesinTextFile[-1]}.txt')
+    # print("Output File: {}".format(os.path.abspath(text_file.name)), f'/home/Insync/Convexcreate@gmail.com/GD/Engineering/Python/Output/transcript_{channelTitle}_between_{datesinTextFile[0]}_and_{datesinTextFile[-1]}.txt')
 
 
 # #export the date last, the most recent date will be used to determine how many transcripts need to be scraped for the next time (see first section where the pickle is loaded)
