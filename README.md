@@ -31,7 +31,12 @@ If not all transcripts seem to be imported:
 ## TODO
 
 ## Need to haves:
-- When it is X many days since last transcript; notify the user when the `Transcript_scraper_NLP_analysis.py` is executed of how many days since last.
+
+- reformat
+- Bug: overwriting transcript
+- print new lines instead of one line, see if colouring works
+- provide the youtube url in the video data
+
 - Searching for 2 patterns close together
 - Parametrize an option to Only import last X transcripts (if you want recent search alerts, you don't need the older transcripts')
 - put multiple wordOfinterest matches in the same video under only 1 metadata

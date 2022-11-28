@@ -1,40 +1,3 @@
-# !!! all checkmarks are user-input variables that need to be moved to the execution part of the script later
-
-# to executution:
-newTranscript = False # !!! if it were to be the first, a new txt file is created; after: the scraped transcripts are appended to the existing txt file
-
-# input (your) API-key ; I do not explicitly write it here because otherwise people could copy it.
-
-# !!! to execution:
-import os
-os.chdir("/home/Insync/Convexcreate@gmail.com/GD/Engineering/Development/YouTubeVideo_transcript_topicAlert")
-with open('api_key.txt', 'r') as file:
-    api_key = file.read().replace('\n', '')
-dir_oldTranscripts = "/home/Insync/Convexcreate@gmail.com/GD/Engineering/Python/Output"
-
-        # you can add some channels, for easy switching the input to the program:
-# channel_Id = "UCfpnY5NnBl-8L7SvICuYkYQ" #Scott adams
-# channel_Id = "UCNAxrHudMfdzNi6NxruKPLw" #sam harris
-# channel_Id = "UCGaVdbSav8xWuFWTadK6loA" #vlogbrothers
-# channel_Id = "UCh_dVD10YuSghle8g6yjePg" #naval
-# channel_Id = "UC88A5W9XyWx7WSwthd5ykhw" #Krishnamurti
-# channel_Id = "UCRhV1rWIpm_pU19bBm_2RXw" #SeanCaroll
-# channel_Id = "UCjYKsjt-7EDU78KEcVbhYnQ" #Shkreli
-
-transcripts_dic = {
-    "scott_adams": "UCfpnY5NnBl-8L7SvICuYkYQ",
-    "sam_harris": "UCNAxrHudMfdzNi6NxruKPLw",
-    "martin_shkreli": "UCjYKsjt-7EDU78KEcVbhYnQ",
-    "peter_attia": "UC8kGsMa0LygSX9nkBcBH1Sg",
-    "tim_ferris":"UCznv7Vf9nBdJYvBagFd",
-    "peter_schiff": "",
-    "investor_podcast": "",
-    "sean_caroll": "UCRhV1rWIpm_pU19bBm_2RXw"
-    }
-
-# !!!
-channel_Id = transcripts_dic['martin_shkreli']
-
 #%%Inferring_ChannelRequest_by_FirstLastName_UserInput
 def Inferring_ChannelRequest_by_FirstLastName_UserInput(transcripts_dic):
     """
@@ -72,7 +35,7 @@ def Inferring_ChannelRequest_by_FirstLastName_UserInput(transcripts_dic):
 def Inferring_LatestLatestTranscriptFile_by_FirstLastName_UserInput(
         transcriptFile_Title_requested):
 
-    import re, glob
+    import re, glob, sys
 
     user_confirmation = None
     os.chdir(dir_oldTranscripts)
@@ -83,13 +46,13 @@ def Inferring_LatestLatestTranscriptFile_by_FirstLastName_UserInput(
             print('\n We infer that this is the latest transcript file :\n\n',LatestLatestTranscriptFile,'\n')
             # transcriptFile_Title_requested = LatestLatestTranscriptFile
             user_confirmation = input("Enter on the following line whether this is the right transcript txt file? yes/no\n\n")
-            if user_confirmation.lower() != 'yes':
-                # print(transcripts_dic.keys())
-                for key in transcripts_dic.keys(): print(key)
-                transcriptFile_Title_requested = input("\nEnter the name of the transcript txt file on the following line:\n")
-            break
+            if user_confirmation.lower() == 'yes':
+                newTranscript = False # then the transcript must also exist
+            else:
+                newTranscript = True
+            break # break out of the for loop when the first match is found
 
-    # Printing how many days ago the latest appended transcript was:
+    # Printing how many days ago the  appended transcript was:
     from datetime import datetime
     with open(LatestLatestTranscriptFile,encoding='utf8') as file:
         a_strings_transcripts_existing = file.read()
@@ -97,11 +60,14 @@ def Inferring_LatestLatestTranscriptFile_by_FirstLastName_UserInput(
         datetime_lastVid = datetime.strptime(a_strings_transcripts_existing[4:12], '%y-%m-%d')
         delta = datetime.today() - datetime_lastVid
         print( f'\n It has been *** {delta.days} *** days since the latest transcript in our latest output file till today ')
+        # exit if input == 'y'
+        _ = input('Continue? y/n \n')
+        if _ =='n': sys.exit(0)
 
-    return LatestLatestTranscriptFile, delta
+    return LatestLatestTranscriptFile, newTranscript,  delta
 
 #%% json_storer
-def json_storer(delta):
+def json_storer(newTranscript, delta):
     """
     # stores the video meta-data; including Ids required for downloading next
     """
@@ -251,31 +217,61 @@ def exporter(LatestLatestTranscriptFile,transcripts):
     else:
         datesinTextFile = re.findall("\d{4}-\d{2}-\d{2}", transcripts)
             
-    with open(f'/home/Insync/Convexcreate@gmail.com/GD/Engineering/Python/Output/transcript_{channelRequested}_between_{datesinTextFile[0]}_and_{datesinTextFile[-1]}.txt', "w",encoding="utf-8") as text_file:
+    with open(f'transcript_{channelRequested}_between_{datesinTextFile[0]}_and_{datesinTextFile[-1]}.txt', "w",encoding="utf-8") as text_file:
         text_file.write(transcripts)
     
     import os
     datesinTextFile = re.findall("\d{4}-\d{2}-\d{2}", transcripts) # will be used to name the transcript file with earliest and latest transcript date in the title
-    os.rename(os.path.abspath(text_file.name),f'/home/Insync/Convexcreate@gmail.com/GD/Engineering/Python/Output/transcript_{channelRequested}_between_{datesinTextFile[0]}_and_{datesinTextFile[-1]}.txt')
-    # print("Output File: {}".format(os.path.abspath(text_file.name)), f'/home/Insync/Convexcreate@gmail.com/GD/Engineering/Python/Output/transcript_{channelTitle}_between_{datesinTextFile[0]}_and_{datesinTextFile[-1]}.txt')
+    os.rename(os.path.abspath(text_file.name),f'transcript_{channelRequested}_between_{datesinTextFile[0]}_and_{datesinTextFile[-1]}.txt')
+    # print("Output File: {}".format(os.path.abspath(text_file.name)), f'Output/transcript_{channelTitle}_between_{datesinTextFile[0]}_and_{datesinTextFile[-1]}.txt')
 
 #%% ==========================================================
 # Execute
 #==========================================================
 
+        # you can add some channels, for easy switching the input to the program:
+# channel_Id = "UCfpnY5NnBl-8L7SvICuYkYQ" #Scott adams
+# channel_Id = "UCNAxrHudMfdzNi6NxruKPLw" #sam harris
+# channel_Id = "UCGaVdbSav8xWuFWTadK6loA" #vlogbrothers
+# channel_Id = "UCh_dVD10YuSghle8g6yjePg" #naval
+# channel_Id = "UC88A5W9XyWx7WSwthd5ykhw" #Krishnamurti
+# channel_Id = "UCRhV1rWIpm_pU19bBm_2RXw" #SeanCaroll
+# channel_Id = "UCjYKsjt-7EDU78KEcVbhYnQ" #Shkreli
+
+transcripts_dic = {
+    "scott_adams": "UCfpnY5NnBl-8L7SvICuYkYQ",
+    "sam_harris": "UCNAxrHudMfdzNi6NxruKPLw",
+    "martin_shkreli": "UCjYKsjt-7EDU78KEcVbhYnQ",
+    "peter_attia": "UC8kGsMa0LygSX9nkBcBH1Sg",
+    "tim_ferris":"UCznv7Vf9nBdJYvBagFd",
+    "peter_schiff": "",
+    "investor_podcast": "",
+    "sean_caroll": "UCRhV1rWIpm_pU19bBm_2RXw",
+    "na_val": "UCh_dVD10YuSghle8g6yjePg"
+    }
+
+# channel_Id = transcripts_dic['na_val']
+
 if __name__ == '__main__':
     
+    import os
+    os.chdir("/home/Insync/Convexcreate@gmail.com/GD/Engineering/Development/D_YouTubeVideo_transcript_topicAlert")
+    with open('api_key.txt', 'r') as file:
+        api_key = file.read().replace('\n', '')
+    dir_oldTranscripts = "Output/"
+    
+    # FUNCTIONS:    
     channelRequested, channel_Id = Inferring_ChannelRequest_by_FirstLastName_UserInput(transcripts_dic)
    
-    LatestLatestTranscriptFile,delta = Inferring_LatestLatestTranscriptFile_by_FirstLastName_UserInput(        channelRequested)
+    LatestLatestTranscriptFile, newTranscript, delta = Inferring_LatestLatestTranscriptFile_by_FirstLastName_UserInput(channelRequested)
     
-    b_json_files, max_videos = json_storer(delta)     
+    b_json_files, max_videos = json_storer(newTranscript, delta)     
 
     date_vids, title_vids, ids_vids, fail = youtubeMetaDataExtractor(max_videos)
     
     transcripts = transcriptDownloader(ids_vids,date_vids,title_vids,max_videos)
     
-    transcripts = textTranscriptExtractor()
+    transcripts = textTranscriptExtractor(transcripts)
     
     transcripts = transcriptDownloader(ids_vids, date_vids,title_vids,max_videos)# i0=succesfull i2=unsuccesful in transcript extraction
     
