@@ -35,8 +35,7 @@ def Inferring_LatestLatestTranscriptFile_by_FirstLastName_UserInput(
   
     import re
     import glob
-    import sys
-
+    
     user_confirmation = None
     os.chdir(dir_oldTranscripts)
     Old_Transcripts = [f for f in glob.glob('*txt')]
@@ -50,25 +49,32 @@ def Inferring_LatestLatestTranscriptFile_by_FirstLastName_UserInput(
                 "Enter on the following line whether this is the right transcript txt file? yes/no\n\n")
             if user_confirmation.lower() == 'yes':
                 newTranscript = False  # then the transcript must also exist
-            
-            else:
-                newTranscript = True
+                
             break  # break out of the for loop when the first match is found
+            
+        else: # if the requested channel name is not found in list old transcripts
+            newTranscript = True
+            break # out of the loop when it is not found
 
-    from datetime import datetime
-    with open(LatestLatestTranscriptFile, encoding='utf8') as file:
-        a_strings_transcripts_existing = file.read()
-        # determining the most recent date of the transcriptfile
-        datetime_lastVid = datetime.strptime(
-            a_strings_transcripts_existing[4:12], '%y-%m-%d')
-        delta = datetime.today() - datetime_lastVid
-        print(
-            f'\n It has been *** {delta.days} *** days since the latest transcript in our latest output file till today ')
-        _ = input('Continue? y/n \n')
-        if _ == 'n':
-            sys.exit(0)
-
-    return LatestLatestTranscriptFile, newTranscript,  delta
+    if newTranscript == False:
+        from datetime import datetime
+        with open(LatestLatestTranscriptFile, encoding='utf8') as file:
+            a_strings_transcripts_existing = file.read()
+            # determining the most recent date of the transcriptfile
+            datetime_lastVid = datetime.strptime(
+                a_strings_transcripts_existing[4:12], '%y-%m-%d')
+            delta = datetime.today() - datetime_lastVid
+            print(
+                f'\n It has been *** {delta.days} *** days since the latest transcript in our latest output file till today ')
+            _ = input('Continue? y/n \n')
+            if _ == 'n':
+                exit
+            return LatestLatestTranscriptFile, newTranscript, delta
+        
+    else:
+        delta = None
+        LatestLatestTranscriptFile = False
+        return LatestLatestTranscriptFile, newTranscript, delta
 
 # %% json_storer
 def json_storer(newTranscript, delta):
@@ -195,6 +201,8 @@ def textTranscriptExtractor(transcripts):
     transcript_txtFile = ""
     # for i in range(10): #(len(transcripts[0])):
     for key, date, title, idd in zip(transcripts[0], date_vids, title_vids, ids_vids):
+        if max_videos > 200:
+            print(date)
         transcript_txtFile += str(counter)+"\n" + \
             date + "\n"+idd+"\n" + title + "\n\n"
         for i in transcripts[0][key]:  # so all the

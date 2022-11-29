@@ -17,7 +17,7 @@ text of the video-transcript (N lines)
 
 - Check: whether your api_key is (still) valid
 - Run the entire `Transcript_scraper_with_specifiedMaximum.py`to import the transcripts and create one big `txt` file (if an older txt file already exists, the new transcripts are appended to the old file)
-- Set the 3 parameters at the top of the `Transcript_scraper_NLP_analysis.py` file, and then run the entire script. 
+- Set the 3 parameters at the top of the `Transcript_scraper_NLP_analysis.py` file, and then run the entire script.
 
 
 # Troubleshoot
@@ -34,6 +34,7 @@ If not all transcripts seem to be imported:
 
 - New transcript bug; tells X days since last transcript, even though transcript does not exist.
 - Bug: overwriting transcript
+- Very slow- especially when newTranscript
 - print new lines instead of one line, see if colouring works
 - provide the youtube url in the video data
 
@@ -55,7 +56,7 @@ If not all transcripts seem to be imported:
 
 ## Bug & resolvement (learning purposes)
 - when transcript is unavaible for a given ID, the next transcript is being written under the ID that was unavailable
-- '[zZ]uck' does not return matches, 'Zuckerberg' does. 
+- '[zZ]uck' does not return matches, 'Zuckerberg' does.
     - a_matches_KeywordψContext = re.findall(wordOfInterestψContext, a_strings_transcripts) > '(.{200})(zuck)(\\s.{200})' e.g. 'zuck' is a part of a word, because the regex searches for a space surrounding it, it returns no matches.
 
 
