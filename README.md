@@ -32,7 +32,7 @@ If not all transcripts seem to be imported:
 
 ## Need to haves:
 
-- reformat
+- New transcript bug; tells X days since last transcript, even though transcript does not exist.
 - Bug: overwriting transcript
 - print new lines instead of one line, see if colouring works
 - provide the youtube url in the video data
