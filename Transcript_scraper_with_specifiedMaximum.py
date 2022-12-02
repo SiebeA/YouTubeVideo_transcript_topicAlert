@@ -42,19 +42,19 @@ def Inferring_LatestLatestTranscriptFile_by_FirstLastName_UserInput(
 
     for LatestLatestTranscriptFile in Old_Transcripts:
         if transcriptFile_Title_requested.split('_')[0].lower() in re.split("_| ", LatestLatestTranscriptFile.lower()) or transcriptFile_Title_requested.split('_')[1].lower() in re.split("_| ", LatestLatestTranscriptFile.lower()):
-            print('\n We infer that this is the latest transcript file :\n\n',
+                print('\n We infer that this is the latest transcript file :\n\n',
                   LatestLatestTranscriptFile, '\n')
-            # transcriptFile_Title_requested = LatestLatestTranscriptFile
-            user_confirmation = input(
-                "Enter on the following line whether this is the right transcript txt file? yes/no\n\n")
-            if user_confirmation.lower() == 'yes':
-                newTranscript = False  # then the transcript must also exist
-                
-            break  # break out of the for loop when the first match is found
+                user_confirmation = input("Enter on the following line whether this is the right transcript txt file? yes/no\n\n")
+                if user_confirmation.lower() == 'yes':
+                    transcriptFile_Title_requested = LatestLatestTranscriptFile
+                    newTranscript = False
+                    break
+            # newTranscript = False  # then the transcript must also exist
             
-        else: # if the requested channel name is not found in list old transcripts
-            newTranscript = True
-            break # out of the loop when it is not found
+        # break  # break out of the for loop when the first match is found
+        
+    if user_confirmation != 'yes': # if the requested channel name is not found in list old transcripts
+        newTranscript = True
 
     if newTranscript == False:
         from datetime import datetime
@@ -148,15 +148,9 @@ def transcriptDownloader(ids_vids, date_vids, title_vids, max_videos):
     Downloading the actual Transcripts using thw YoutubeData-API
 
     '''
-    import time
-    start_time = time.time()
-
     from youtube_transcript_api import YouTubeTranscriptApi
     transcripts = YouTubeTranscriptApi.get_transcripts(
         video_ids=ids_vids[:max_videos], continue_after_error=True)
-
-    print('time it took in secs to download the transcripts :',
-          round(time.time() - start_time))
 
     '''
     correcting for missing transcripts
@@ -184,7 +178,6 @@ def transcriptDownloader(ids_vids, date_vids, title_vids, max_videos):
 '      organizing the downloaded transcripts; filter out text (not timestamps)'
 #========================= #
 def textTranscriptExtractor(transcripts):
-    import time
     """
     Returns
     -------
@@ -196,7 +189,6 @@ def textTranscriptExtractor(transcripts):
                 video-id
                 video-title
     """
-    start_time = time.time()
     counter = 0
     transcript_txtFile = ""
     # for i in range(10): #(len(transcripts[0])):
@@ -210,8 +202,6 @@ def textTranscriptExtractor(transcripts):
             transcript_txtFile += i['text']+" "
         transcript_txtFile += "\n\n"
         counter += 1
-    print('time it took to extract the text in secs:',
-          round(time.time() - start_time))
     return transcript_txtFile
 
 # %% export
@@ -226,24 +216,24 @@ def exporter(LatestLatestTranscriptFile, transcripts):
     LatestLatestTranscriptFile : str
         DESCRIPTION.
     transcripts : tuple
-        DESCRIPTION.
 
     Returns
     -------
     None. either updates the pre-existing transcripts text file on dir, or creates a new one
     """
-    if newTranscript != True:
+    if newTranscript == False:
         # we need the dates of the preexisting file in order to open it (and write the new transcripts to ti)
         datesinTextFile = re.findall(
             "\d{4}-\d{2}-\d{2}", LatestLatestTranscriptFile)
     else:
+        print('else')
         datesinTextFile = re.findall("\d{4}-\d{2}-\d{2}", transcripts)
 
     with open(f'transcript_{channelRequested}_between_{datesinTextFile[0]}_and_{datesinTextFile[-1]}.txt', "w", encoding="utf-8") as text_file:
         text_file.write(transcripts)
 
     # will be used to name the transcript file with earliest and latest transcript date in the title
-    datesinTextFile = re.findall("\d{4}-\d{2}-\d{2}", transcripts)
+    # datesinTextFile = re.findall("\d{4}-\d{2}-\d{2}", transcripts)
     os.rename(os.path.abspath(text_file.name),
               f'transcript_{channelRequested}_between_{datesinTextFile[0]}_and_{datesinTextFile[-1]}.txt')
     # print("Output File: {}".format(os.path.abspath(text_file.name)), f'Output/transcript_{channelTitle}_between_{datesinTextFile[0]}_and_{datesinTextFile[-1]}.txt')
@@ -265,34 +255,43 @@ transcripts_dic = {
     "jordan_peterson": "UCL_f53ZEJxp8TtlOkHwMV9Q"}
 
 if __name__ == '__main__':
-
     import os
-    os.chdir("/home/Insync/Convexcreate@gmail.com/GD/Engineering/Development/D_YouTubeVideo_transcript_topicAlert")
+    import time
+
+    os.chdir("/home/Insync/Convexcreate@gmail.com/GD/Engineering/Development/PY_YouTubeVideo_transcript_topicAlert")
     with open('api_key.txt', 'r') as file:
         api_key = file.read().replace('\n', '')
     dir_oldTranscripts = "Output/"
 
     # FUNCTIONS:
+    start_time = time.time()
     channelRequested, channel_Id = Inferring_ChannelRequest_by_FirstLastName_UserInput(
         transcripts_dic)
+    print('time it took to infer the channel in secs:',round(time.time() - start_time))    
 
+    start_time = time.time()
     LatestLatestTranscriptFile, newTranscript, delta = Inferring_LatestLatestTranscriptFile_by_FirstLastName_UserInput(
         channelRequested)
+    print('time it took to infer the latest transcript in secs:',round(time.time() - start_time))
 
+    start_time = time.time()
     b_json_files, max_videos = json_storer(newTranscript, delta)
+    print('time it took to store the json files in secs:',round(time.time() - start_time))
 
+    start_time = time.time()
     date_vids, title_vids, ids_vids, fail = youtubeMetaDataExtractor(
         max_videos)
+    print('time it took to extract the metadata in secs:',round(time.time() - start_time))
 
+    start_time = time.time()
     transcripts = transcriptDownloader(
         ids_vids, date_vids, title_vids, max_videos)
+    print('time it took to download the transcripts in secs:',round(time.time() - start_time))
 
-    transcripts = textTranscriptExtractor(transcripts)
-
-    # i0=succesfull i2=unsuccesful in transcript extraction
-    transcripts = transcriptDownloader(
-        ids_vids, date_vids, title_vids, max_videos)
-
+    start_time = time.time()
     transcripts_str = textTranscriptExtractor(transcripts)
+    print('time it took to extract the text in secs:',round(time.time() - start_time))
 
+    start_time = time.time()
     exporter(LatestLatestTranscriptFile, transcripts_str)
+    print('time it took to export the text in secs:',round(time.time() - start_time))
