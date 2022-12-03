@@ -29,8 +29,8 @@ def Inferring_ChannelRequest_by_FirstLastName_UserInput(transcripts_dic):
 
     return channelRequested, channel_Id
 
-# %% Inferring_LatestLatestTranscriptFile_by_FirstLastName_UserInput
-def Inferring_LatestLatestTranscriptFile_by_FirstLastName_UserInput(
+# %% Inferring_pre_existing_transcript_file_by_FirstLastName_UserInput
+def Inferring_pre_existing_transcript_file_by_FirstLastName_UserInput(
         transcriptFile_Title_requested):
   
     import re
@@ -40,13 +40,13 @@ def Inferring_LatestLatestTranscriptFile_by_FirstLastName_UserInput(
     os.chdir(dir_oldTranscripts)
     Old_Transcripts = [f for f in glob.glob('*txt')]
 
-    for LatestLatestTranscriptFile in Old_Transcripts:
-        if transcriptFile_Title_requested.split('_')[0].lower() in re.split("_| ", LatestLatestTranscriptFile.lower()) or transcriptFile_Title_requested.split('_')[1].lower() in re.split("_| ", LatestLatestTranscriptFile.lower()):
+    for pre_existing_transcript_file in Old_Transcripts:
+        if transcriptFile_Title_requested.split('_')[0].lower() in re.split("_| ", pre_existing_transcript_file.lower()) or transcriptFile_Title_requested.split('_')[1].lower() in re.split("_| ", pre_existing_transcript_file.lower()):
                 print('\n We infer that this is the latest transcript file :\n\n',
-                  LatestLatestTranscriptFile, '\n')
+                  pre_existing_transcript_file, '\n')
                 user_confirmation = input("Enter on the following line whether this is the right transcript txt file? yes/no\n\n")
                 if user_confirmation.lower() == 'yes':
-                    transcriptFile_Title_requested = LatestLatestTranscriptFile
+                    transcriptFile_Title_requested = pre_existing_transcript_file
                     newTranscript = False
                     break
             # newTranscript = False  # then the transcript must also exist
@@ -58,7 +58,7 @@ def Inferring_LatestLatestTranscriptFile_by_FirstLastName_UserInput(
 
     if newTranscript == False:
         from datetime import datetime
-        with open(LatestLatestTranscriptFile, encoding='utf8') as file:
+        with open(pre_existing_transcript_file, encoding='utf8') as file:
             a_strings_transcripts_existing = file.read()
             # determining the most recent date of the transcriptfile
             datetime_lastVid = datetime.strptime(
@@ -69,12 +69,12 @@ def Inferring_LatestLatestTranscriptFile_by_FirstLastName_UserInput(
             _ = input('Continue? y/n \n')
             if _ == 'n':
                 exit
-            return LatestLatestTranscriptFile, newTranscript, delta
+            return pre_existing_transcript_file, newTranscript, delta
         
     else:
         delta = None
-        LatestLatestTranscriptFile = False
-        return LatestLatestTranscriptFile, newTranscript, delta
+        pre_existing_transcript_file = False
+        return pre_existing_transcript_file, newTranscript, delta
 
 # %% json_storer
 def json_storer(newTranscript, delta):
@@ -181,7 +181,7 @@ def textTranscriptExtractor(transcripts):
     """
     Returns
     -------
-    transcript_txtFile : STR
+    new_transcripts_str : STR
         Extracts the texts, and organizes the text by putting the correct
             video-details at the top. format:
                 index of transcript
@@ -190,22 +190,22 @@ def textTranscriptExtractor(transcripts):
                 video-title
     """
     counter = 0
-    transcript_txtFile = ""
+    new_transcripts_str = ""
     # for i in range(10): #(len(transcripts[0])):
     for key, date, title, idd in zip(transcripts[0], date_vids, title_vids, ids_vids):
         if max_videos > 200:
             print(date)
-        transcript_txtFile += str(counter)+"\n" + \
+        new_transcripts_str += str(counter)+"\n" + \
             date + "\n"+idd+"\n" + title + "\n\n"
         for i in transcripts[0][key]:  # so all the
             # the text is written under the date,id,title
-            transcript_txtFile += i['text']+" "
-        transcript_txtFile += "\n\n"
+            new_transcripts_str += i['text']+" "
+        new_transcripts_str += "\n\n"
         counter += 1
-    return transcript_txtFile
+    return new_transcripts_str
 
 # %% export
-def exporter(LatestLatestTranscriptFile, transcripts):
+def exporter(pre_existing_transcript_file, transcripts):
    
     import re
     import os
@@ -213,7 +213,7 @@ def exporter(LatestLatestTranscriptFile, transcripts):
     """
     Parameters
     ----------
-    LatestLatestTranscriptFile : str
+    pre_existing_transcript_file : str
         DESCRIPTION.
     transcripts : tuple
 
@@ -224,18 +224,40 @@ def exporter(LatestLatestTranscriptFile, transcripts):
     if newTranscript == False:
         # we need the dates of the preexisting file in order to open it (and write the new transcripts to ti)
         datesinTextFile = re.findall(
-            "\d{4}-\d{2}-\d{2}", LatestLatestTranscriptFile)
+            "\d{4}-\d{2}-\d{2}", pre_existing_transcript_file)
+        
+        # OPEN pre-existing transcript file:
+        with open(pre_existing_transcript_file, "r", encoding="utf-8") as text_file:
+            pre_existing_transcript_str = text_file.read()
+        
+        # EXPORT only the new transcripts
+        datesinTextFile = re.findall(
+            "\d{4}-\d{2}-\d{2}", new_transcripts_str)
+        # latest_transcript_date = new_transcripts_str[2:12]
+        with open(f'Transcript_batches/Transcript_batchesnew_transcripts_str_{channelRequested}_between_{datesinTextFile[0]}_and_{datesinTextFile[-1]}.txt', "w", encoding="utf-8") as text_file:
+            # dont overwrite the file, but append to it
+            text_file.write(new_transcripts_str)
+        
+    
+    
+    
+        updated_transcript  = transcripts + pre_existing_transcript_str
+    
+        with open(f'transcript_{channelRequested}_between_{datesinTextFile[0]}_and_{datesinTextFile[-1]}.txt', "w", encoding="utf-8") as text_file:
+            # dont overwrite the file, but append to it
+            text_file.write(updated_transcript)
+
     else:
         print('else')
         datesinTextFile = re.findall("\d{4}-\d{2}-\d{2}", transcripts)
 
-    with open(f'transcript_{channelRequested}_between_{datesinTextFile[0]}_and_{datesinTextFile[-1]}.txt', "w", encoding="utf-8") as text_file:
-        text_file.write(transcripts)
+
 
     # will be used to name the transcript file with earliest and latest transcript date in the title
     # datesinTextFile = re.findall("\d{4}-\d{2}-\d{2}", transcripts)
+    
     os.rename(os.path.abspath(text_file.name),
-              f'transcript_{channelRequested}_between_{datesinTextFile[0]}_and_{datesinTextFile[-1]}.txt')
+              f'transcript_{channelRequested}_between_{latest_transcript_date}_and_{datesinTextFile[-1]}.txt')
     # print("Output File: {}".format(os.path.abspath(text_file.name)), f'Output/transcript_{channelTitle}_between_{datesinTextFile[0]}_and_{datesinTextFile[-1]}.txt')
 
 # %% ==========================================================
@@ -270,7 +292,7 @@ if __name__ == '__main__':
     print('time it took to infer the channel in secs:',round(time.time() - start_time))    
 
     start_time = time.time()
-    LatestLatestTranscriptFile, newTranscript, delta = Inferring_LatestLatestTranscriptFile_by_FirstLastName_UserInput(
+    pre_existing_transcript_file, newTranscript, delta = Inferring_pre_existing_transcript_file_by_FirstLastName_UserInput(
         channelRequested)
     print('time it took to infer the latest transcript in secs:',round(time.time() - start_time))
 
@@ -289,9 +311,9 @@ if __name__ == '__main__':
     print('time it took to download the transcripts in secs:',round(time.time() - start_time))
 
     start_time = time.time()
-    transcripts_str = textTranscriptExtractor(transcripts)
+    new_transcripts_str = textTranscriptExtractor(transcripts)
     print('time it took to extract the text in secs:',round(time.time() - start_time))
 
     start_time = time.time()
-    exporter(LatestLatestTranscriptFile, transcripts_str)
+    exporter(pre_existing_transcript_file, new_transcripts_str)
     print('time it took to export the text in secs:',round(time.time() - start_time))

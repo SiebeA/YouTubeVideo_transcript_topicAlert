@@ -4,6 +4,7 @@
 Execute the file in its entirety and provide input to the prompts. This will provide you with a text_file with meta-data and transcripts of all the YouTube-channel's video, in the format of:
 
 ```
+*FORMAT:
 index of transcript
 Date of transcript/video
 video-id
@@ -25,15 +26,14 @@ If not all transcripts seem to be imported:
 ​    - Newest videos have not generated a transcript yet by YouTube
 
 
-
-
-
 ## TODO
 
 ## Need to haves:
 
-- New transcript bug; tells X days since last transcript, even though transcript does not exist.
-- Bug: overwriting transcript
+- BUG: the number of transcripts downloaded is a function of the delta between {TODAY} and the {lastTranscript} ; for channels such as Sam harris, who upload once a week, this results in duplicate transcripts
+- Provide option to only download new transcript;
+    - output 2 text files: {new_transcripts} {cumulative_transcripts}
+- provide the youtube url in the video data
 - Very slow- especially when newTranscript
 - print new lines instead of one line, see if colouring works
 - provide the youtube url in the video data
