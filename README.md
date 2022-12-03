@@ -30,11 +30,11 @@ If not all transcripts seem to be imported:
 
 ## Need to haves:
 
-- BUG: the number of transcripts downloaded is a function of the delta between {TODAY} and the {lastTranscript} ; for channels such as Sam harris, who upload once a week, this results in duplicate transcripts
+- IMPR-speed: textTranscriptExtractor function
 - Provide option to only download new transcript;
     - output 2 text files: {new_transcripts} {cumulative_transcripts}
 - provide the youtube url in the video data
-- Very slow- especially when newTranscript
+- FeatureIdea: get remote_latest_video date from a channel (https://www.googleapis.com/youtube/v3/search?key=AIzaSyDZlegWZl3Mbi7xGPgOnB3qbQXD5EkbSCg&channelId=UCNAxrHudMfdzNi6NxruKPLw&part=snippet,id&order=date&maxResults=X compare it with most_recent local_transcript_date IF it reaches X new videos THEN automatically update a transcript file of a video
 - print new lines instead of one line, see if colouring works
 - provide the youtube url in the video data
 

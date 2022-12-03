@@ -57,7 +57,6 @@ def Inferring_pre_existing_transcript_file_by_FirstLastName_UserInput(
         newTranscript = True
 
     if newTranscript == False:
-        from datetime import datetime
         with open(pre_existing_transcript_file, encoding='utf8') as file:
             a_strings_transcripts_existing = file.read()
             # determining the most recent date of the transcriptfile
@@ -69,12 +68,12 @@ def Inferring_pre_existing_transcript_file_by_FirstLastName_UserInput(
             _ = input('Continue? y/n \n')
             if _ == 'n':
                 exit
-            return pre_existing_transcript_file, newTranscript, delta
+            return pre_existing_transcript_file, newTranscript, delta, datetime_lastVid
         
     else:
         delta = None
         pre_existing_transcript_file = False
-        return pre_existing_transcript_file, newTranscript, delta
+        return pre_existing_transcript_file, newTranscript, delta, datetime_lastVid
 
 # %% json_storer
 def json_storer(newTranscript, delta):
@@ -91,28 +90,51 @@ def json_storer(newTranscript, delta):
     if newTranscript == True:
         max_videos = 1000  # specify how many videos are included
     else:
-        max_videos = delta.days  # specify how many videos have to be incluced #bug is when the channel uploads more videos per day, then some will be missed.
+        max_videos = delta.days  # specify how many videos have to be incluced #bug is when the channel uploads more videos per day, then some will be missed conversely, if <1 a day, too many will be requested
 
     b_json_files = []
     youtubeChannelMetaDataUrl = f"https://www.googleapis.com/youtube/v3/search?key={api_key}&channelId={channel_Id}&part=snippet,id&order=date&maxResults=50"
     response = urlopen(youtubeChannelMetaDataUrl)
-    data_json = json.loads(response.read())
+    data_json = json.loads(response.read()) # contains the data for 50 videos
+    
+    
+    
+    # if the date of the last video in the batch is moreRECENT than datetime_lastVid, then  get a new nextPageToken, otherwise stop
+    
+
     b_json_files.append(data_json)
     if max_videos > 50:  # we require a nextpagetoken to extract additional metadata
         i = 0
         nextPageToken = ""
         # dont waste quota asking for more tokens than our maxvideo count requires; (for 120 videos: 50 first token, cum100 for 1 add, cum 150 1)
         while counter != (ceil(max_videos/100*2)-1) and 'nextPageToken' in b_json_files[i].keys():
-            nextPageToken = b_json_files[i]['nextPageToken']
-            youtubeChannelMetaDataUrl = f"https://www.googleapis.com/youtube/v3/search?key={api_key}&channelId={channel_Id}&part=snippet,id&order=date&maxResults=50&pageToken={nextPageToken}"
-            response = urlopen(youtubeChannelMetaDataUrl)
-            data_json = json.loads(response.read())
-            b_json_files.append(data_json)
-            i += 1
-            print(f" nextpagetoken nr.:{counter}")
-            counter += 1
-        print(youtubeChannelMetaDataUrl)
+            
+            # # date of least recent video in the batch:
+            last_date_batch = data_json['items'][40]['snippet']['publishedAt'][:10]
+            last_date_batch = datetime.strptime(last_date_batch, '%Y-%m-%d') # convert to a datetime object
+            
+            
+            # if statement could be added to the while, but this is for easier comprehension in the future.
+            
+            # a date  > == greater == moreRecent
+            if last_date_batch > datetime_lastVid:
+                print('\n new page token required as the least recent video in the batch is newer than the most recent transcript in our old transcript file \n')
+                nextPageToken = b_json_files[i]['nextPageToken']
+                youtubeChannelMetaDataUrl = f"https://www.googleapis.com/youtube/v3/search?key={api_key}&channelId={channel_Id}&part=snippet,id&order=date&maxResults=50&pageToken={nextPageToken}"
+                response = urlopen(youtubeChannelMetaDataUrl)
+                data_json = json.loads(response.read())
+                b_json_files.append(data_json)
+                i += 1
+                print(f" nextpagetoken nr.:{counter}")
+                counter += 1
+                
+            else:
+                return b_json_files, max_videos
+                
     return b_json_files, max_videos
+    
+                
+            
 
 # %% youtubeMetaDataExtractor
 def youtubeMetaDataExtractor(max_videos):
@@ -140,17 +162,34 @@ def youtubeMetaDataExtractor(max_videos):
     title_vids = [i[1]['title'] for i in metaDataYoutubeVideo][:max_videos]
     ids_vids = [i[2] for i in metaDataYoutubeVideo][:max_videos]
 
-    return date_vids, title_vids, ids_vids, fail
+    # convert all dates to datetime objects without time
+    date_vids = [datetime.strptime(i, '%Y-%m-%d') for i in date_vids]
+    date_vids = [i.date() for i in date_vids] # remove the time from the datetime objects
+
+    for date in date_vids:
+        if date <= datetime_lastVid.date():
+            max_videos_adjusted = date_vids.index(date)
+            print(f"max_videos = {max_videos}")
+            break
+
+    print(f'\n\n a total of {max_videos_adjusted} transcripts will be scraped\n')
+
+
+    # create a dictionary with the date_vids as keys and the ids_vids and title_vids as values
+    # dict_vids = {date_vids[i]: [ids_vids[i], title_vids[i]] for i in range(len(date_vids))} # IMPROVE later, use a dic instead of sepeate values
+
+
+    return date_vids, title_vids, ids_vids, fail, max_videos_adjusted
 
 # %% transcriptDownloader
-def transcriptDownloader(ids_vids, date_vids, title_vids, max_videos):
+def transcriptDownloader(ids_vids, date_vids, title_vids, max_videos_adjusted):
     '''
     Downloading the actual Transcripts using thw YoutubeData-API
 
     '''
     from youtube_transcript_api import YouTubeTranscriptApi
     transcripts = YouTubeTranscriptApi.get_transcripts(
-        video_ids=ids_vids[:max_videos], continue_after_error=True)
+        video_ids=ids_vids[:max_videos_adjusted], continue_after_error=True)
 
     '''
     correcting for missing transcripts
@@ -196,12 +235,13 @@ def textTranscriptExtractor(transcripts):
         if max_videos > 200:
             print(date)
         new_transcripts_str += str(counter)+"\n" + \
-            date + "\n"+idd+"\n" + title + "\n\n"
+            str(date) + "\n"+idd+"\n" + title + "\n\n"
         for i in transcripts[0][key]:  # so all the
             # the text is written under the date,id,title
             new_transcripts_str += i['text']+" "
         new_transcripts_str += "\n\n"
         counter += 1
+    print('the dates of the added transcripts hereabove\n ')
     return new_transcripts_str
 
 # %% export
@@ -256,8 +296,12 @@ def exporter(pre_existing_transcript_file, transcripts):
     # will be used to name the transcript file with earliest and latest transcript date in the title
     # datesinTextFile = re.findall("\d{4}-\d{2}-\d{2}", transcripts)
     
+    datesin_preExisting_TextFile = re.findall(
+        "\d{4}-\d{2}-\d{2}", pre_existing_transcript_str)
+    datesin_preExisting_TextFile = datesin_preExisting_TextFile[-1]
+    
     os.rename(os.path.abspath(text_file.name),
-              f'transcript_{channelRequested}_between_{latest_transcript_date}_and_{datesinTextFile[-1]}.txt')
+              f'transcript_{channelRequested}_between_{datesinTextFile[0]}_and_{datesin_preExisting_TextFile}.txt')
     # print("Output File: {}".format(os.path.abspath(text_file.name)), f'Output/transcript_{channelTitle}_between_{datesinTextFile[0]}_and_{datesinTextFile[-1]}.txt')
 
 # %% ==========================================================
@@ -279,6 +323,7 @@ transcripts_dic = {
 if __name__ == '__main__':
     import os
     import time
+    from datetime import datetime
 
     os.chdir("/home/Insync/Convexcreate@gmail.com/GD/Engineering/Development/PY_YouTubeVideo_transcript_topicAlert")
     with open('api_key.txt', 'r') as file:
@@ -292,7 +337,7 @@ if __name__ == '__main__':
     print('time it took to infer the channel in secs:',round(time.time() - start_time))    
 
     start_time = time.time()
-    pre_existing_transcript_file, newTranscript, delta = Inferring_pre_existing_transcript_file_by_FirstLastName_UserInput(
+    pre_existing_transcript_file, newTranscript, delta,datetime_lastVid = Inferring_pre_existing_transcript_file_by_FirstLastName_UserInput(
         channelRequested)
     print('time it took to infer the latest transcript in secs:',round(time.time() - start_time))
 
@@ -301,13 +346,13 @@ if __name__ == '__main__':
     print('time it took to store the json files in secs:',round(time.time() - start_time))
 
     start_time = time.time()
-    date_vids, title_vids, ids_vids, fail = youtubeMetaDataExtractor(
+    date_vids, title_vids, ids_vids, fail, max_videos_adjusted = youtubeMetaDataExtractor(
         max_videos)
     print('time it took to extract the metadata in secs:',round(time.time() - start_time))
 
     start_time = time.time()
     transcripts = transcriptDownloader(
-        ids_vids, date_vids, title_vids, max_videos)
+        ids_vids, date_vids, title_vids, max_videos_adjusted)
     print('time it took to download the transcripts in secs:',round(time.time() - start_time))
 
     start_time = time.time()
