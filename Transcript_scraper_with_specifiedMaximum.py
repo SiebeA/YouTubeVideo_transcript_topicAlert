@@ -272,37 +272,30 @@ def exporter(pre_existing_transcript_file, transcripts):
         
         # EXPORT only the new transcripts
         datesinTextFile = re.findall(
-            "\d{4}-\d{2}-\d{2}", new_transcripts_str)
-        # latest_transcript_date = new_transcripts_str[2:12]
+            "\d{4}-\d{2}-\d{2}", new_transcripts_str) # dates new transcript file
         with open(f'Transcript_batches/Transcript_batchesnew_transcripts_str_{channelRequested}_between_{datesinTextFile[0]}_and_{datesinTextFile[-1]}.txt', "w", encoding="utf-8") as text_file:
             # dont overwrite the file, but append to it
             text_file.write(new_transcripts_str)
         
-    
-    
-    
         updated_transcript  = transcripts + pre_existing_transcript_str
     
-        with open(f'transcript_{channelRequested}_between_{datesinTextFile[0]}_and_{datesinTextFile[-1]}.txt', "w", encoding="utf-8") as text_file:
-            # dont overwrite the file, but append to it
-            text_file.write(updated_transcript)
-
     else:
         print('else')
         datesinTextFile = re.findall("\d{4}-\d{2}-\d{2}", transcripts)
 
-
-
     # will be used to name the transcript file with earliest and latest transcript date in the title
-    # datesinTextFile = re.findall("\d{4}-\d{2}-\d{2}", transcripts)
-    
     datesin_preExisting_TextFile = re.findall(
         "\d{4}-\d{2}-\d{2}", pre_existing_transcript_str)
     datesin_preExisting_TextFile = datesin_preExisting_TextFile[-1]
     
-    os.rename(os.path.abspath(text_file.name),
-              f'transcript_{channelRequested}_between_{datesinTextFile[0]}_and_{datesin_preExisting_TextFile}.txt')
-    # print("Output File: {}".format(os.path.abspath(text_file.name)), f'Output/transcript_{channelTitle}_between_{datesinTextFile[0]}_and_{datesinTextFile[-1]}.txt')
+    # export 
+    with open(f'transcript_{channelRequested}_between_{datesinTextFile[0]}_and_{datesin_preExisting_TextFile}.txt'  , "w", encoding="utf-8") as text_file:
+        text_file.write(updated_transcript)
+
+    # delete the old transcript file
+    os.remove(pre_existing_transcript_file)
+
+        
 
 # %% ==========================================================
 # Execute
@@ -318,7 +311,9 @@ transcripts_dic = {
     "investor_podcast": "",
     "sean_caroll": "UCRhV1rWIpm_pU19bBm_2RXw",
     "na_val": "UCh_dVD10YuSghle8g6yjePg",
-    "jordan_peterson": "UCL_f53ZEJxp8TtlOkHwMV9Q"}
+    "jordan_peterson": "UCL_f53ZEJxp8TtlOkHwMV9Q",
+    "andrew_huberman": "UCkZjTZNvuxq1CYMS3cwZa1Q"
+    }
 
 if __name__ == '__main__':
     import os

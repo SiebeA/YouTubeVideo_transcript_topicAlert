@@ -30,7 +30,9 @@ If not all transcripts seem to be imported:
 
 ## Need to haves:
 
+- jordan peterson is not properly added to al his old trans, while scott adams is
 - IMPR-speed: textTranscriptExtractor function
+- error when the script is executed on a channel that was already executed the same day (datetime referred before)
 - Provide option to only download new transcript;
     - output 2 text files: {new_transcripts} {cumulative_transcripts}
 - provide the youtube url in the video data
