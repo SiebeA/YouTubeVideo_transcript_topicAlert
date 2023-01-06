@@ -1,6 +1,4 @@
-# YouTubeVideo_transcript_topicAlert
-
-### atm. only working on Ubuntu
+# atm. only working on Ubuntu
 
 # What the Transcript_scraper_with_specifiedMaximum script will provide you
 Execute the file in its entirety and provide input to the prompts. This will provide you with a text_file with meta-data and transcripts of all the YouTube-channel's video, in the format of:
