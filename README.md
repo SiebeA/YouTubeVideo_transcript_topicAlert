@@ -1,4 +1,4 @@
-# YouTubeVideo_transcript_topicAlert
+# atm. only working on Ubuntu
 
 # What the Transcript_scraper_with_specifiedMaximum script will provide you
 Execute the file in its entirety and provide input to the prompts. This will provide you with a text_file with meta-data and transcripts of all the YouTube-channel's video, in the format of:
@@ -28,9 +28,17 @@ If not all transcripts seem to be imported:
 
 ## TODO
 
-## Need to haves:
+###                                   Transcript_scraper_NLP_analysis.py
+- analyse the newest_transcript_batch for a channel
+
+
+###                                   Transcript_scraper_with_specifiedMaximum.py
+#### Need to haves:
+- Store a pickle for every {newest_transcript_batch} for each channel; this should be updated every time the transcript scraper script is run; because the NLP analysis script will only process that updated newest transcript file (analyzing all will not be timely informative and slow); do cumulative_transcripts will be saved seperately for a different analysis
+
 
 - IMPR-speed: textTranscriptExtractor function
+- error when the script is executed on a channel that was already executed the same day (datetime referred before)
 - Provide option to only download new transcript;
     - output 2 text files: {new_transcripts} {cumulative_transcripts}
 - provide the youtube url in the video data
@@ -45,6 +53,7 @@ If not all transcripts seem to be imported:
     - Identify the bottleNeck
     - Only import last X transcripts (if you want recent search alerts, you don't need the older transcripts')
 ## Nice to Haves
+- Not compatible for Windows yet: make it dynamic by creating the specific folders in def exporter()
 - execute the script WHEN system startup
 - for Transcripts, instead of cutting of at 200, cut of at a word boundary
 - in [Transcript_scraper_with_specifiedMaximum]: Automatically delete the older version of the transcript file
