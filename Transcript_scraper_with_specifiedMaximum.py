@@ -325,7 +325,7 @@ if __name__ == '__main__':
     import time
     from datetime import datetime
 
-    os.chdir("/home/Insync/Convexcreate@gmail.com/GD/Engineering/Development/PY_YouTubeVideo_transcript_topicAlert")
+    os.chdir("/home/Insync/Convexcreate@gmail.com/GD/Engineering/Development/YouTubeVideo_transcript_topicAlert")
     with open('api_key.txt', 'r') as file:
         api_key = file.read().replace('\n', '')
     dir_oldTranscripts = "Output/"
@@ -349,7 +349,7 @@ if __name__ == '__main__':
     date_vids, title_vids, ids_vids, fail, max_videos_adjusted = youtubeMetaDataExtractor(
         max_videos)
     print('time it took to extract the metadata in secs:',round(time.time() - start_time))
-
+    print('now on to downloading the transcripts')
     start_time = time.time()
     transcripts = transcriptDownloader(
         ids_vids, date_vids, title_vids, max_videos_adjusted)
