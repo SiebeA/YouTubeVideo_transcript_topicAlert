@@ -44,8 +44,8 @@ def Inferring_pre_existing_transcript_file_by_FirstLastName_UserInput(
         if transcriptFile_Title_requested.split('_')[0].lower() in re.split("_| ", pre_existing_transcript_file.lower()) or transcriptFile_Title_requested.split('_')[1].lower() in re.split("_| ", pre_existing_transcript_file.lower()):
                 print('\n We infer that this is the latest transcript file :\n\n',
                   pre_existing_transcript_file, '\n')
-                user_confirmation = input("Enter on the following line whether this is the right transcript txt file? yes/no\n\n")
-                if user_confirmation.lower() == 'yes':
+                user_confirmation = input("Enter on the following line whether this is the right transcript txt file? y/n\n\n")
+                if user_confirmation.lower() == 'y':
                     transcriptFile_Title_requested = pre_existing_transcript_file
                     newTranscript = False
                     break
@@ -53,7 +53,7 @@ def Inferring_pre_existing_transcript_file_by_FirstLastName_UserInput(
             
         # break  # break out of the for loop when the first match is found
         
-    if user_confirmation != 'yes': # if the requested channel name is not found in list old transcripts
+    if user_confirmation != 'y': # if the requested channel name is not found in list old transcripts
         newTranscript = True
 
     if newTranscript == False:
@@ -89,8 +89,13 @@ def json_storer(newTranscript, delta):
 
     if newTranscript == True:
         max_videos = 1000  # specify how many videos are included
+    # else:
+    #     max_videos = delta.days  # specify how many videos have to be incluced #bug is when the channel uploads more videos per day, then some will be missed conversely, if <1 a day, too many will be requested
+    
+    # I will put 50 for DEBUGGING, and perhaps it makes more sense to just request 50 videos at a time as older is not relevant, perhaps just for backlog
     else:
-        max_videos = delta.days  # specify how many videos have to be incluced #bug is when the channel uploads more videos per day, then some will be missed conversely, if <1 a day, too many will be requested
+        max_videos = 50
+
 
     b_json_files = []
     youtubeChannelMetaDataUrl = f"https://www.googleapis.com/youtube/v3/search?key={api_key}&channelId={channel_Id}&part=snippet,id&order=date&maxResults=50"
@@ -130,7 +135,9 @@ def json_storer(newTranscript, delta):
                 
             else:
                 return b_json_files, max_videos
-                
+    
+    print("\n\nmax videos")
+    print(max_videos)
     return b_json_files, max_videos
     
                 
@@ -166,6 +173,30 @@ def youtubeMetaDataExtractor(max_videos):
     date_vids = [datetime.strptime(i, '%Y-%m-%d') for i in date_vids]
     date_vids = [i.date() for i in date_vids] # remove the time from the datetime objects
 
+
+
+
+    # provide a list of missing dates between the 0th and last date:
+    print("\n\n the dates included in this video batch:")
+    last_date = 0
+    for i, d in enumerate(date_vids):
+        # if d is >1 day older than last_date, print warning
+        try:
+            delta = d.day - last_date
+        except:
+            delta = d.day-last_date.day
+        
+        if delta <-1 and delta != 0:
+            print(f"\033[1;31;40m{d}\033[0m")
+        else:
+            print(i, d)
+        last_date = d
+        # if d is more than 1 day older than the previous, print the date in red:
+            # print(f"\033[1;31;40m{d('%Y-%m-%d')}\033[0m")
+    input("Press Enter to continue...")
+
+
+
     for date in date_vids:
         if date <= datetime_lastVid.date():
             max_videos_adjusted = date_vids.index(date)
@@ -187,6 +218,11 @@ def transcriptDownloader(ids_vids, date_vids, title_vids, max_videos_adjusted):
     Downloading the actual Transcripts using thw YoutubeData-API
 
     '''
+
+    adjust_adjustment = input(f'the max videos adjusted is {max_videos_adjusted}, press enter to continue, or enter a number to adjust the max videos\n')
+    if adjust_adjustment != '':
+        max_videos_adjusted = int(adjust_adjustment)
+
     from youtube_transcript_api import YouTubeTranscriptApi
     transcripts = YouTubeTranscriptApi.get_transcripts(
         video_ids=ids_vids[:max_videos_adjusted], continue_after_error=True)
@@ -241,11 +277,15 @@ def textTranscriptExtractor(transcripts):
             new_transcripts_str += i['text']+" "
         new_transcripts_str += "\n\n"
         counter += 1
+    
+    if len(new_transcripts_str) == 0:
+        print('\nno new transcripts were added to the preexisting file')
+        input("Press Enter to continue...")
     print('the dates of the added transcripts hereabove\n ')
     return new_transcripts_str
 
 # %% export
-def exporter(pre_existing_transcript_file, transcripts):
+def exporter(pre_existing_transcript_file, transcripts,):
    
     import re
     import os
@@ -326,14 +366,16 @@ if __name__ == '__main__':
     dir_oldTranscripts = "Output/"
 
     # FUNCTIONS:
-    start_time = time.time()
-    channelRequested, channel_Id = Inferring_ChannelRequest_by_FirstLastName_UserInput(
-        transcripts_dic)
-    print('time it took to infer the channel in secs:',round(time.time() - start_time))    
+    # start_time = time.time()
+    # channelRequested, channel_Id = Inferring_ChannelRequest_by_FirstLastName_UserInput(
+    #     transcripts_dic)
+    # print('time it took to infer the channel in secs:',round(time.time() - start_time))    
 
     start_time = time.time()
+    channel_Id = "UCfpnY5NnBl-8L7SvICuYkYQ"
+    channelRequested = "scott_adams"
     pre_existing_transcript_file, newTranscript, delta,datetime_lastVid = Inferring_pre_existing_transcript_file_by_FirstLastName_UserInput(
-        channelRequested)
+        "scott_adams")
     print('time it took to infer the latest transcript in secs:',round(time.time() - start_time))
 
     start_time = time.time()
