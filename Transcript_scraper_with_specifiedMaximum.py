@@ -75,7 +75,7 @@ def Inferring_pre_existing_transcript_file_by_FirstLastName_UserInput(
         newTranscript = None
         delta = None
         datetime_lastVid = None
-        
+
         return pre_existing_transcript_file, newTranscript, delta, datetime_lastVid
     
 # %% json_storer
@@ -369,14 +369,20 @@ if __name__ == '__main__':
     dir_oldTranscripts = "Output/"
 
     # FUNCTIONS:
-    # start_time = time.time()
-    # channelRequested, channel_Id = Inferring_ChannelRequest_by_FirstLastName_UserInput(
-    #     transcripts_dic)
-    # print('time it took to infer the channel in secs:',round(time.time() - start_time))    
+    start_time = time.time()
+    channelRequested, channel_Id = Inferring_ChannelRequest_by_FirstLastName_UserInput(
+        transcripts_dic)
+    print('time it took to infer the channel in secs:',round(time.time() - start_time))    
+
+
+    # FOR DEBUGGING:                                    # to skip the user input
+    # channel_Id = "UCfpnY5NnBl-8L7SvICuYkYQ"
+    # channel_Id = "UCjYKsjt-7EDU78KEcVbhYn"
+    # # channelRequested = "scott_adams"
+    # channelRequested = "martin_shkreli"
+
 
     start_time = time.time()
-    channel_Id = "UCfpnY5NnBl-8L7SvICuYkYQ"
-    channelRequested = "scott_adams"
     pre_existing_transcript_file, newTranscript, delta,datetime_lastVid = Inferring_pre_existing_transcript_file_by_FirstLastName_UserInput(
         "scott_adams")
     print('time it took to infer the latest transcript in secs:',round(time.time() - start_time))
