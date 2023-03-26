@@ -27,7 +27,13 @@ def Inferring_ChannelRequest_by_FirstLastName_UserInput(transcripts_dic):
             "\n Enter the name of the transcript txt file on the following line:\n")
     channel_Id = transcripts_dic[channelRequested]
 
-    return channelRequested, channel_Id
+    nr_of_transcripts_requested = int(input("How many transcripts do you want to scrape? press nothing if you want all the new transcripts available \n"))
+    if nr_of_transcripts_requested != '':
+        only_batch = True
+    else:
+        only_batch = False
+
+    return channelRequested, channel_Id, nr_of_transcripts_requested, only_batch
 
 # %% Inferring_pre_existing_transcript_file_by_FirstLastName_UserInput
 def Inferring_pre_existing_transcript_file_by_FirstLastName_UserInput(
@@ -39,6 +45,14 @@ def Inferring_pre_existing_transcript_file_by_FirstLastName_UserInput(
     user_confirmation = None
     os.chdir(dir_oldTranscripts)
     Old_Transcripts = [f for f in glob.glob('*txt')]
+
+    if only_batch == True:
+        pre_existing_transcript_file = False
+        newTranscript = None
+        delta = None
+        datetime_lastVid = None
+        return pre_existing_transcript_file, newTranscript, delta, datetime_lastVid
+
 
     for pre_existing_transcript_file in Old_Transcripts:
         if transcriptFile_Title_requested.split('_')[0].lower() in re.split("_| ", pre_existing_transcript_file.lower()) or transcriptFile_Title_requested.split('_')[1].lower() in re.split("_| ", pre_existing_transcript_file.lower()):
@@ -79,7 +93,7 @@ def Inferring_pre_existing_transcript_file_by_FirstLastName_UserInput(
         return pre_existing_transcript_file, newTranscript, delta, datetime_lastVid
     
 # %% json_storer
-def json_storer(newTranscript, delta):
+def json_storer(newTranscript, delta, only_batch, nr_of_transcripts_requested):
    
     from urllib.request import urlopen
     import json
@@ -90,14 +104,14 @@ def json_storer(newTranscript, delta):
     """
     counter = 0
 
-    if newTranscript == True:
+    if newTranscript == True and only_batch == False:
         max_videos = 1000  # specify how many videos are included
     # else:
     #     max_videos = delta.days  # specify how many videos have to be incluced #bug is when the channel uploads more videos per day, then some will be missed conversely, if <1 a day, too many will be requested
     
     # I will put 50 for DEBUGGING, and perhaps it makes more sense to just request 50 videos at a time as older is not relevant, perhaps just for backlog
     else:
-        max_videos = 50
+        max_videos = nr_of_transcripts_requested
 
 
     b_json_files = []
@@ -200,35 +214,32 @@ def youtubeMetaDataExtractor(max_videos):
 
 
 
-    for date in date_vids:
-        if date <= datetime_lastVid.date():
-            max_videos_adjusted = date_vids.index(date)
-            print(f"max_videos = {max_videos}")
-            break
+    # for date in date_vids:
+    #     if date <= datetime_lastVid.date():
+    #         max_videos_adjusted = date_vids.index(date)
+    #         print(f"max_videos = {max_videos}")
+    #         break
 
-    print(f'\n\n a total of {max_videos_adjusted} transcripts will be scraped\n')
+    # print(f'\n\n a total of {max_videos_adjusted} transcripts will be scraped\n')
 
 
     # create a dictionary with the date_vids as keys and the ids_vids and title_vids as values
     # dict_vids = {date_vids[i]: [ids_vids[i], title_vids[i]] for i in range(len(date_vids))} # IMPROVE later, use a dic instead of sepeate values
 
 
-    return date_vids, title_vids, ids_vids, fail, max_videos_adjusted
+    return date_vids, title_vids, ids_vids
 
 # %% transcriptDownloader
-def transcriptDownloader(ids_vids, date_vids, title_vids, max_videos_adjusted):
+def transcriptDownloader(ids_vids, date_vids, title_vids, max_videos):
     '''
     Downloading the actual Transcripts using thw YoutubeData-API
 
     '''
 
-    adjust_adjustment = input(f'the max videos adjusted is {max_videos_adjusted}, press enter to continue, or enter a number to adjust the max videos\n')
-    if adjust_adjustment != '':
-        max_videos_adjusted = int(adjust_adjustment)
 
     from youtube_transcript_api import YouTubeTranscriptApi
     transcripts = YouTubeTranscriptApi.get_transcripts(
-        video_ids=ids_vids[:max_videos_adjusted], continue_after_error=True)
+        video_ids=ids_vids[:max_videos], continue_after_error=True)
 
     '''
     correcting for missing transcripts
@@ -304,7 +315,20 @@ def exporter(pre_existing_transcript_file, transcripts,):
     -------
     None. either updates the pre-existing transcripts text file on dir, or creates a new one
     """
-    if newTranscript == False:
+    
+
+    if only_batch == True:
+            # EXPORT only the new transcripts
+        datesinTextFile = re.findall(
+            "\d{4}-\d{2}-\d{2}", new_transcripts_str) # dates new transcript file
+        with open(f'Transcript_batches/Transcript_batchesnew_transcripts_str_{channelRequested}_between_{datesinTextFile[0]}_and_{datesinTextFile[-1]}.txt', "w", encoding="utf-8") as text_file:
+            # dont overwrite the file, but append to it
+            text_file.write(new_transcripts_str)
+        print('the batch has been exported to the Transcript_batches folder')
+        input("Press Enter to continue or ctrl z to exit...")
+    
+    
+    elif newTranscript == False and only_batch == False:
         # we need the dates of the preexisting file in order to open it (and write the new transcripts to ti)
         datesinTextFile = re.findall(
             "\d{4}-\d{2}-\d{2}", pre_existing_transcript_file)
@@ -370,10 +394,9 @@ if __name__ == '__main__':
 
     # FUNCTIONS:
     start_time = time.time()
-    channelRequested, channel_Id = Inferring_ChannelRequest_by_FirstLastName_UserInput(
+    channelRequested, channel_Id, nr_of_transcripts_requested, only_batch = Inferring_ChannelRequest_by_FirstLastName_UserInput(
         transcripts_dic)
     print('time it took to infer the channel in secs:',round(time.time() - start_time))    
-
 
     # FOR DEBUGGING:                                    # to skip the user input
     # channel_Id = "UCfpnY5NnBl-8L7SvICuYkYQ"
@@ -381,24 +404,23 @@ if __name__ == '__main__':
     # # channelRequested = "scott_adams"
     # channelRequested = "martin_shkreli"
 
-
     start_time = time.time()
     pre_existing_transcript_file, newTranscript, delta,datetime_lastVid = Inferring_pre_existing_transcript_file_by_FirstLastName_UserInput(
-        "scott_adams")
+        channelRequested) #!!!
     print('time it took to infer the latest transcript in secs:',round(time.time() - start_time))
 
     start_time = time.time()
-    b_json_files, max_videos = json_storer(newTranscript, delta)
+    b_json_files, max_videos = json_storer(newTranscript, delta, only_batch, nr_of_transcripts_requested)
     print('time it took to store the json files in secs:',round(time.time() - start_time))
 
     start_time = time.time()
-    date_vids, title_vids, ids_vids, fail, max_videos_adjusted = youtubeMetaDataExtractor(
+    date_vids, title_vids, ids_vids = youtubeMetaDataExtractor(
         max_videos)
     print('time it took to extract the metadata in secs:',round(time.time() - start_time))
     print('now on to downloading the transcripts')
     start_time = time.time()
     transcripts = transcriptDownloader(
-        ids_vids, date_vids, title_vids, max_videos_adjusted)
+        ids_vids, date_vids, title_vids, max_videos)
     print('time it took to download the transcripts in secs:',round(time.time() - start_time))
 
     start_time = time.time()
