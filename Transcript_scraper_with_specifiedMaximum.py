@@ -71,10 +71,13 @@ def Inferring_pre_existing_transcript_file_by_FirstLastName_UserInput(
             return pre_existing_transcript_file, newTranscript, delta, datetime_lastVid
         
     else:
-        delta = None
         pre_existing_transcript_file = False
+        newTranscript = None
+        delta = None
+        datetime_lastVid = None
+        
         return pre_existing_transcript_file, newTranscript, delta, datetime_lastVid
-
+    
 # %% json_storer
 def json_storer(newTranscript, delta):
    
