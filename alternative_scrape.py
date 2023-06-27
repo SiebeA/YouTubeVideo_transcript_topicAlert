@@ -1,26 +1,19 @@
-# TODO:
-# - check the delta between the video dates or the number of the episode
-# - add a timestamp at the end of every line
-
-
 from youtube_transcript_api import YouTubeTranscriptApi
 import os
 import requests
 import logging
 
-logging.basicConfig(level=logging.WARNING, format='%(asctime)s - %(levelname)s - %(message)s') # logging the time, level and message 
-# besides info, there are also debug, warning, error, critical, which do:
-# logging.info("Script started.")
-# logging.debug('This is a debug message')
-# logging.info('This is an info message')
-# logging.warning('This is a warning')
-# logging.error('This is an error message')
-# logging.critical('This is a critical message')
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+# Now the logging level is set to INFO, and the INFO and DEBUG messages will be printed
 
-api_key = "AIzaSyDZlegWZl3Mbi7xGPgOnB3qbQXD5EkbSCg"
-max_request = 1000
-youtube_url = "https://www.youtube.com/" # youtube url
 
+
+# source the api key from: "X:\My Drive\Engineering\Development\YouTubeVideo_transcript_topicAlert\api_key.txt"
+with open("api_key.txt", "r") as f:
+    api_key = f.read()
+
+max_request = 6 # for scott adams; after 6 there are leaps in video date
+youtube_url = "https://www.youtube.com/"
 
 transcripts_dic = {
     "scott_adams": "UCfpnY5NnBl-8L7SvICuYkYQ",
@@ -34,66 +27,90 @@ transcripts_dic = {
     "na_val": "UCh_dVD10YuSghle8g6yjePg",
     "jordan_peterson": "UCL_f53ZEJxp8TtlOkHwMV9Q",
     "andrew_huberman": "UCkZjTZNvuxq1CYMS3cwZa1Q"
-    }
+}
 
-channel_requested = "peter_attia"
+channel_requested = "scott_adams"
+next_page_token = None
 
-# Set up YouTube channel ID and transcript export directory
 path = os.getcwd()
-channel_id = transcripts_dic[channel_requested]
+transcript_dir = os.path.join(path, 'transcripts')
 
-# join: join the path and the channel name
-os.path.join(path, channel_requested)
+if not os.path.exists(transcript_dir):
+    os.makedirs(transcript_dir)
+    print("Directory", transcript_dir, "Created ")
 
-# Create a directory to store the transcripts in if it doesn't already exist
-if not os.path.exists('transcripts'):
-    os.makedirs('transcripts')
-    os.chdir('transcripts')
-    if not os.path.exists(channel_requested):
-        os.makedirs(channel_requested)
-        print("Directory ", channel_requested, " Created ")
-os.chdir('transcripts')
-if not os.path.exists(channel_requested):
-        os.makedirs(channel_requested)
-        print("Directory ", channel_requested, " Created ")
+channel_dir = os.path.join(transcript_dir, channel_requested)
 
+if not os.path.exists(channel_dir):
+    os.makedirs(channel_dir)
+    print("Directory", channel_dir, "Created ")
 
-transcript_dir = os.path.join(os.getcwd(), 'transcripts')
+os.chdir(channel_dir)
 
-# Download the last 10 videos from the channel
-url = "https://www.googleapis.com/youtube/v3/search?key={}&channelId={}&part=snippet,id&order=date&maxResults={}".format(api_key, channel_id, max_request)
-response = requests.get(url).json()
+counter = 0
+while counter < max_request:
+    counter += 1
+    url = f"https://www.googleapis.com/youtube/v3/search?key={api_key}&channelId={transcripts_dic[channel_requested]}&part=snippet,id&order=date&maxResults={max_request}"
+    # if next_page_token:
+    #     url += f"&pageToken={next_page_token}"
 
-# Extract the transcript text for each video and write it to a file
-for item in response['items']:
-    try:
+    response = requests.get(url).json()
+
+    # if there is a error message in the response, print it and exit
+    if 'error' in response.keys():
+        logging.error(response['error']['message'])
+        exit()
+
+    # print the length of the items in response
+    # print(len(response['items']))
+
+    for item in response['items']:
+        counter += 1
         video_id = item['id']['videoId']
         video_title = item['snippet']['title']
-        video_date = item['snippet']['publishedAt'][:10]  # Extract the date from the datetime string
-        transcript = YouTubeTranscriptApi.get_transcript(video_id)
-        # Create the transcript export file with the video title and date in the filename
-        filename = "{}_{}.txt".format(video_date, video_title)
-        # replace invalid characters in the filename
-        filename = filename.replace(':', ';').replace('?', '').replace('/', '').replace('"', '').replace('|', '').replace('*', '').replace('<', '').replace('>', '').replace('\\', '')
-        filepath = os.path.join(transcript_dir, filename)
-    except:
-        logging.warning("Video {} does not have a transcript.".format(video_id))
-        continue
+        video_date = item['snippet']['publishedAt'][:10]
 
-    # Write the transcript text to the export file:
-    with open(os.path.join(channel_requested, filename), "w", encoding="utf-8") as f:
-    # with open(filepath, "w", encoding="utf-8") as f:
-        f.write("Url to video: {}watch?v={}\n\n".format(youtube_url, video_id))
-        for line in transcript:
-            url_youtube = f"https://youtu.be/{item['id']['videoId']}?t="
-            # round the timestamp to the lower second
-            timestamp = int(line['start']) 
-            # TD for tomorrow I want to add a timestamp at the end of every line
+        try:
+            transcript = YouTubeTranscriptApi.get_transcript(video_id)
+        except:
+            logging.warning(f"Video {video_id} with date: {video_date} does not have a transcript.")
+            continue
 
-            f.write(line['text'] + "  " + url_youtube + str(timestamp) + '\n')
+        filename = f"{video_date}_{video_title}.txt"
+        a = filename
+        # delete characters that are not allowed in filenames
+        for char in ['\\', '/', ':', '*', '?', '"', '<', '>', '|']:
+            filename = filename.replace(char, '')
 
-    # Log the filename of the transcript that was created
-    logging.info("Transcript exported to file: {}".format(filepath))
+        print(filename)
 
-# Log a message indicating that the script has finished
+        # first create a new text file
+        with open(filename, "w", encoding="utf-8") as f:
+            f.write(f"Url to video: {youtube_url}watch?v={video_id}\n\n")
+            for line in transcript:
+                url_youtube = f"https://youtu.be/{item['id']['videoId']}?t="
+                timestamp = int(line['start'])
+                f.write(line['text'] + "  " + url_youtube + str(timestamp) + '\n')
+
+        logging.info(f"Transcript exported to file: {filename}")
+        # provide a log of nth video out of max request
+        if response['items'].index(item) % 10 == 0:
+            logging.info(f"Video {response['items'].index(item)} out of {max_request} exported.")
+
+        logging.info(f"the date of the video is: {video_date}")
+
+        
+    # next_page_token = response.get('nextPageToken')
+    # if not next_page_token:
+    #     break
+
 logging.info("Script finished.")
+#
+
+# get a list of mentioned Proper names
+# (?<!^)(Dr )*[A-Z][a-zA-Z]{2,} [A-Z][a-zA-Z]{2,}|(?<!^)(Dr )*[A-Z][a-zA-Z]+
+
+# leftoff
+# - 
+# - check how much quota
+# - check whether it breaks when max is reached;
