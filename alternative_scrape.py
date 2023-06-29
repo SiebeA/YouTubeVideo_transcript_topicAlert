@@ -60,6 +60,12 @@ filenames = os.listdir()
 # sort them from old to new
 filenames.sort()
 filenames.reverse()
+
+# remove all files that do not have a date in the filename; identify with 'dddd-dd-dd' format
+for filename in filenames:
+    if not filename[4] == "-":
+        filenames.remove(filename)
+
 latest_filename = filenames[1]
 # get the date of the latest transcript
 latest_date = latest_filename[:10]
@@ -98,9 +104,6 @@ while counter < max_request:
         logging.error(response['error']['message'])
         exit()
 
-    # print the length of the items in response
-    # print(len(response['items']))
-
     for item in response['items']:
         counter += 1
         video_id = item['id']['videoId']
@@ -123,34 +126,59 @@ while counter < max_request:
 
         # first create a new text file
         with open(filename, "w", encoding="utf-8") as f:
-            f.write(f"Url to video: {youtube_url}watch?v={video_id}\n\n")
+            f.write(f"Url to video: [link]({youtube_url}watch?v={video_id})\n\n")
             for line in transcript:
                 url_youtube = f"https://youtu.be/{item['id']['videoId']}?t="
                 timestamp = int(line['start'])
-                f.write(line['text'] + "  " + url_youtube + str(timestamp) + '\n')
+                f.write(line['text'] + "  " + "[L]" + "(" + url_youtube + str(timestamp) + ')<br>\n')
 
-        logging.info(f"Transcript exported to file: {filename}")
-        # provide a log of nth video out of max request
-        if response['items'].index(item) % 10 == 0:
-            logging.info(f"Video {response['items'].index(item)} out of {max_request} exported.")
-
-        logging.info(f"the date of the video is: {video_date}")
-
+        logging.info(f"transcript with date : {video_date} exported\n\n open with markdown viewer for links")
         
     # next_page_token = response.get('nextPageToken')
     # if not next_page_token:
     #     break
 
-logging.info("Script finished.")
+# logging.info("Script finished.")
 #
 
-# get a list of mentioned Proper names
+# ============================================
+#      # get countDIC of mentioned proper names  
+# ============================================
 
-# remove weblinks with re: 
-# \s*http.+
+# remove weblinks with re:
+import re
+regex_webLinks  = r"\s+\[.+" # find weblinks
+regex_properNames = r"[A-Z]\w+\s*[A-Z]\w+\s*[A-Z]\w+|[A-Z]\w+\s*[A-Z]\w+|[A-Z]\w+" # find proper names: 3 (cased) words, 2 words, 1 word
 
-# extract all proper names from the text (they are cased by YoutubeTranscriptApi)
-# (?<!^)(Dr )*[A-Z][a-zA-Z]{2,} [A-Z][a-zA-Z]{2,}|(?<!^)(Dr )*[A-Z][a-zA-Z]+
+# ask user whether to get a list of mentioned proper names of the most recent transcript
+answer = input("Get a list of mentioned proper names of the most recent transcript? (y or n)")
+if answer == "y":
+    # get the most recent transcript
+    first_file = filenames[1]
+    with open(first_file, "r", encoding="utf-8") as f:
+        text = f.read()
+        text = re.sub(regex_webLinks, "", text)
+        properNames = re.findall(regex_properNames, text)
+        # properNames = list(dict.fromkeys(properNames)) # remove duplicates
+        properNames.sort()
 
-# leftoff / TODO
-# - scan the output folder to see the date of the latest transcript; prompt the user to adapt the max request
+    dic = {}
+    for name in properNames:
+        if name not in dic:
+            dic[name] = 1
+        else:
+            dic[name] += 1
+
+    # sort the dictionary by value
+    import operator
+    sorted_dic = sorted(dic.items(), key=operator.itemgetter(1), reverse=True)
+    # print the first 100 items
+    for name in sorted_dic[:100]:
+        print(name[0] + " : " + str(name[1]))
+
+    # export sorted dictionary to txt file
+    with open("properNames_sorted.txt", "w", encoding="utf-8") as f:
+        for name in sorted_dic:
+            f.write(name[0] + " : " + str(name[1]) + "\n")
+    
+    print(f"{first_file[:10]}.txt exported")
