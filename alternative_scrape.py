@@ -1,3 +1,7 @@
+#!C:\Users\Siebe\venvs\.requests\Scripts\python.exe
+# the first line is for windows to know which interpreter to use
+
+import sys
 from youtube_transcript_api import YouTubeTranscriptApi
 import os
 import requests
@@ -11,6 +15,9 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 # source the api key from: "X:\My Drive\Engineering\Development\YouTubeVideo_transcript_topicAlert\api_key.txt"
 with open("api_key.txt", "r") as f:
     api_key = f.read()
+
+max_requests = int(sys.argv[1]) if len(sys.argv) > 1 else 6
+channel_requested = sys.argv[2] if len(sys.argv) > 2 else "scott_adams"
 
 max_request = 6 # for scott adams; after 6 there are leaps in video date
 youtube_url = "https://www.youtube.com/"
@@ -29,9 +36,6 @@ transcripts_dic = {
     "andrew_huberman": "UCkZjTZNvuxq1CYMS3cwZa1Q"
 }
 
-channel_requested = "scott_adams"
-next_page_token = None
-
 path = os.getcwd()
 transcript_dir = os.path.join(path, 'transcripts')
 
@@ -46,6 +50,39 @@ if not os.path.exists(channel_dir):
     print("Directory", channel_dir, "Created ")
 
 os.chdir(channel_dir)
+
+
+# ============================================
+#  Determine Delta between today and last transcript       
+# ============================================
+# list all the filenames in the directory
+filenames = os.listdir()
+# sort them from old to new
+filenames.sort()
+filenames.reverse()
+latest_filename = filenames[1]
+# get the date of the latest transcript
+latest_date = latest_filename[:10]
+# datetime object of today's date
+from datetime import date, datetime
+today = date.today()
+# convert the date of the latest transcript to datetime object
+latest_date = datetime.strptime(latest_date, '%Y-%m-%d').date()
+# calculate the difference between today and the latest transcript
+delta = today - latest_date
+
+# ask the user and ask whether to change the max_requests to the delta (y or n)
+if delta.days > 0:
+    print(f"Last transcript is from {latest_date} which is {delta.days} days ago.")
+    print(f"Change max_requests to {delta.days}? (y or n)")
+    answer = input()
+    if answer == "y":
+        max_request = delta.days
+        print(f"max_requests changed to {max_request}")
+    else:
+        print(f"max_requests remains {max_request}")
+# ============================================
+
 
 counter = 0
 while counter < max_request:
@@ -108,9 +145,12 @@ logging.info("Script finished.")
 #
 
 # get a list of mentioned Proper names
+
+# remove weblinks with re: 
+# \s*http.+
+
+# extract all proper names from the text (they are cased by YoutubeTranscriptApi)
 # (?<!^)(Dr )*[A-Z][a-zA-Z]{2,} [A-Z][a-zA-Z]{2,}|(?<!^)(Dr )*[A-Z][a-zA-Z]+
 
-# leftoff
-# - 
-# - check how much quota
-# - check whether it breaks when max is reached;
+# leftoff / TODO
+# - scan the output folder to see the date of the latest transcript; prompt the user to adapt the max request
