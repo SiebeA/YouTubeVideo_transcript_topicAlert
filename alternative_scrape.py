@@ -16,8 +16,6 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 with open("api_key.txt", "r") as f:
     api_key = f.read()
 
-max_requests = int(sys.argv[1]) if len(sys.argv) > 1 else 6
-channel_requested = sys.argv[2] if len(sys.argv) > 2 else "scott_adams"
 
 max_request = 6 # for scott adams; after 6 there are leaps in video date
 youtube_url = "https://www.youtube.com/"
@@ -28,13 +26,21 @@ transcripts_dic = {
     "martin_shkreli": "UCjYKsjt-7EDU78KEcVbhYnQ",
     "peter_attia": "UC8kGsMa0LygSX9nkBcBH1Sg",
     "tim_ferris": "UCznv7Vf9nBdJYvBagFd",
-    "peter_schiff": "",
-    "investor_podcast": "",
+    # "peter_schiff": "",
+    # "investor_podcast": "",
     "sean_caroll": "UCRhV1rWIpm_pU19bBm_2RXw",
     "na_val": "UCh_dVD10YuSghle8g6yjePg",
     "jordan_peterson": "UCL_f53ZEJxp8TtlOkHwMV9Q",
     "andrew_huberman": "UCkZjTZNvuxq1CYMS3cwZa1Q"
 }
+max_requests = input("How many requests? (default = 6) ")
+
+for channel in transcripts_dic.keys():
+    print(channel)
+# ask the user for the channel if nothing is given as argument use scott_adams
+channel_requested = input("Which channel? (default = scott_adams) ")
+if channel_requested == "":
+    channel_requested = "scott_adams"
 
 path = os.getcwd()
 transcript_dir = os.path.join(path, 'transcripts')
@@ -116,7 +122,7 @@ while counter < max_request:
             logging.warning(f"Video {video_id} with date: {video_date} does not have a transcript.")
             continue
 
-        filename = f"{video_date}_{video_title}.txt"
+        filename = f"{video_date}_{video_title}.tr"
         a = filename
         # delete characters that are not allowed in filenames
         for char in ['\\', '/', ':', '*', '?', '"', '<', '>', '|']:
@@ -181,4 +187,4 @@ if answer == "y":
         for name in sorted_dic:
             f.write(name[0] + " : " + str(name[1]) + "\n")
     
-    print(f"{first_file[:10]}.txt exported")
+    print(f"{first_file[:10]}.tr file exported")
