@@ -12,8 +12,8 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 
 
 
-# source the api key from: "X:\My Drive\Engineering\Development\YouTubeVideo_transcript_topicAlert\api_key.txt"
-with open("api_key.txt", "r") as f:
+# source the api key from: "X:\\My Drive\\Engineering\\Development\\YouTubeVideo_transcript_topicAlert\\api_key.txt"
+with open("X:\\My Drive\\Engineering\\Development\\YouTubeVideo_transcript_topicAlert\\api_key.txt", "r") as f:
     api_key = f.read()
 
 
@@ -72,27 +72,35 @@ for filename in filenames:
     if not filename[4] == "-":
         filenames.remove(filename)
 
-latest_filename = filenames[1]
-# get the date of the latest transcript
-latest_date = latest_filename[:10]
-# datetime object of today's date
-from datetime import date, datetime
-today = date.today()
-# convert the date of the latest transcript to datetime object
-latest_date = datetime.strptime(latest_date, '%Y-%m-%d').date()
-# calculate the difference between today and the latest transcript
-delta = today - latest_date
+# if filenames are not empty:
+if filenames:
+    latest_filename = filenames[1]
+    # get the date of the latest transcript
+    latest_date = latest_filename[:10]
+    # datetime object of today's date
+    from datetime import date, datetime
+    today = date.today()
+    # convert the date of the latest transcript to datetime object
+    latest_date = datetime.strptime(latest_date, '%Y-%m-%d').date()
+    # calculate the difference between today and the latest transcript
+    delta = today - latest_date
+    # ask the user and ask whether to change the max_requests to the delta (y or n)
+    if delta.days > 0:
+        print(f"Last transcript is from {latest_date} which is {delta.days} days ago.")
+        print(f"Change max_requests to {delta.days}? (y or n)")
+        answer = input()
+        if answer == "y":
+            max_request = delta.days
+            print(f"max_requests changed to {max_request}")
+        else:
+            print(f"max_requests remains {max_request}")
+else:
+    latest_filename = None
+    print("No older transcripts found in directory.")
 
-# ask the user and ask whether to change the max_requests to the delta (y or n)
-if delta.days > 0:
-    print(f"Last transcript is from {latest_date} which is {delta.days} days ago.")
-    print(f"Change max_requests to {delta.days}? (y or n)")
-    answer = input()
-    if answer == "y":
-        max_request = delta.days
-        print(f"max_requests changed to {max_request}")
-    else:
-        print(f"max_requests remains {max_request}")
+
+
+
 # ============================================
 
 

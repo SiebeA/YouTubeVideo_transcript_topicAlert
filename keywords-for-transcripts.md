@@ -1,0 +1,5 @@
+## shreli
+- stocks
+- Zeihan
+- option
+- 
