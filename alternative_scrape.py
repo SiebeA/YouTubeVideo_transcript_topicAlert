@@ -17,7 +17,7 @@ with open("X:\\My Drive\\Engineering\\Development\\YouTubeVideo_transcript_topic
     api_key = f.read()
 
 
-max_request = 6 # for scott adams; after 6 there are leaps in video date
+# max_request = 6 # for scott adams; after 6 there are leaps in video date
 youtube_url = "https://www.youtube.com/"
 
 transcripts_dic = {
@@ -34,6 +34,7 @@ transcripts_dic = {
     "andrew_huberman": "UCkZjTZNvuxq1CYMS3cwZa1Q"
 }
 max_requests = input("How many requests? (default = 6) ")
+max_requests = int(max_requests)
 
 for channel in transcripts_dic.keys():
     print(channel)
@@ -91,9 +92,9 @@ if filenames:
         answer = input()
         if answer == "y":
             max_request = delta.days
-            print(f"max_requests changed to {max_request}")
+            print(f"max_requests changed to {max_requests}")
         else:
-            print(f"max_requests remains {max_request}")
+            print(f"max_requests remains {max_requests}")
 else:
     latest_filename = None
     print("No older transcripts found in directory.")
@@ -103,11 +104,10 @@ else:
 
 # ============================================
 
-
 counter = 0
-while counter < max_request:
+while counter < max_requests:
     counter += 1
-    url = f"https://www.googleapis.com/youtube/v3/search?key={api_key}&channelId={transcripts_dic[channel_requested]}&part=snippet,id&order=date&maxResults={max_request}"
+    url = f"https://www.googleapis.com/youtube/v3/search?key={api_key}&channelId={transcripts_dic[channel_requested]}&part=snippet,id&order=date&maxResults={max_requests}"
     # if next_page_token:
     #     url += f"&pageToken={next_page_token}"
 
@@ -168,6 +168,7 @@ regex_properNames = r"[A-Z]\w+\s*[A-Z]\w+\s*[A-Z]\w+|[A-Z]\w+\s*[A-Z]\w+|[A-Z]\w
 answer = input("Get a list of mentioned proper names of the most recent transcript? (y or n)")
 if answer == "y":
     # get the most recent transcript
+    filenames = os.listdir()
     first_file = filenames[1]
     with open(first_file, "r", encoding="utf-8") as f:
         text = f.read()
